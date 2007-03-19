@@ -67,79 +67,49 @@ public class LessonSource extends HammerHead
     public void doPost(HttpServletRequest request, HttpServletResponse response)
 	    throws IOException, ServletException
     {
-	String source = null;
-
-	try
-	{
-	    //System.out.println( "Entering doPost: " );
-	    //System.out.println( "	- request "   + request);
-	    //System.out.println( "	- principle: "   + request.getUserPrincipal() );
-	    //setCacheHeaders(response, 0);
-	    WebSession session = (WebSession) request.getSession(true)
-		    .getAttribute(WebSession.SESSION);
-	    session.update(request, response, this.getServletName()); // FIXME: Too much in this call.
-
-	    // Get the Java source of the lesson.  FIXME: Not needed
-	    source = getSource(session);
-
-	    int scr = session.getCurrentScreen();
-	    Course course = session.getCourse();
-	    AbstractLesson lesson = course.getLesson(session, scr,
-		    AbstractLesson.USER_ROLE);
-	    lesson.getLessonTracker(session).setViewedSource(true);
-	}
-	catch (Throwable t)
-	{
-	    t.printStackTrace();
-	    log("ERROR: " + t);
-	}
-	finally
-	{
-	    try
-	    {
-		this.writeSource(source, response);
-	    }
-	    catch (Throwable thr)
-	    {
-		thr.printStackTrace();
-		log(request, "Could not write error screen: "
-			+ thr.getMessage());
-	    }
-	    //System.out.println( "Leaving doPost: " );
-
-	}
+		String source = null;
+	
+		try
+		{
+		    //System.out.println( "Entering doPost: " );
+		    //System.out.println( "	- request "   + request);
+		    //System.out.println( "	- principle: "   + request.getUserPrincipal() );
+		    //setCacheHeaders(response, 0);
+		    WebSession session = (WebSession) request.getSession(true)
+			    .getAttribute(WebSession.SESSION);
+		    session.update(request, response, this.getServletName()); // FIXME: Too much in this call.
+	
+		    // Get the Java source of the lesson.  FIXME: Not needed
+		    source = getSource(session);
+	
+		    int scr = session.getCurrentScreen();
+		    Course course = session.getCourse();
+		    AbstractLesson lesson = course.getLesson(session, scr,
+			    AbstractLesson.USER_ROLE);
+		    lesson.getLessonTracker(session).setViewedSource(true);
+		}
+		catch (Throwable t)
+		{
+		    t.printStackTrace();
+		    log("ERROR: " + t);
+		}
+		finally
+		{
+		    try
+		    {
+			this.writeSource(source, response);
+		    }
+		    catch (Throwable thr)
+		    {
+			thr.printStackTrace();
+			log(request, "Could not write error screen: "
+				+ thr.getMessage());
+		    }
+		    //System.out.println( "Leaving doPost: " );
+	
+		}
     }
 
-
-    protected WebSession updateSession_DELETEME(HttpServletRequest request,
-	    HttpServletResponse response, ServletContext context)
-    {
-	HttpSession hs;
-	hs = request.getSession(true);
-
-	//System.out.println( "Entering Session_id: " + hs.getId() );
-	// dumpSession( hs );
-
-	// Make a temporary session to avoid the concurreny issue 
-	// in WebSession
-	WebSession session = new WebSession(this, context);
-
-	WebSession realSession = null;
-	Object o = hs.getAttribute(WebSession.SESSION);
-
-	if ((o != null) && o instanceof WebSession)
-	{
-	    realSession = (WebSession) o;
-	}
-	session.setCurrentScreen(realSession.getCurrentScreen());
-	session.setCourse(realSession.getCourse());
-	session.setRequest(request);
-
-	// to authenticate
-	//System.out.println( "Leaving Session_id: " + hs.getId() );
-	//dumpSession( hs );
-	return (session);
-    }
 
 
     /**
