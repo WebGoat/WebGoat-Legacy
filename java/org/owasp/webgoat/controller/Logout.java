@@ -22,7 +22,7 @@ public class Logout {
 
     final Logger logger = LoggerFactory.getLogger(Logout.class);
 
-    @RequestMapping(value = "logout.do", method = RequestMethod.GET)
+    @RequestMapping(value = "logout.mvc", method = RequestMethod.GET)
     public ModelAndView logout(
             @RequestParam(value = "error", required = false) String error,
             @RequestParam(value = "logout", required = false) String logout) {
