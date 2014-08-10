@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class CookieService extends BaseService {
 
     /**
-     * Returns hints for current lesson
+     * Returns cookies for last attack
      *
      * @param session
      * @return
@@ -57,7 +57,6 @@ public class CookieService extends BaseService {
     @RequestMapping(value = "/cookie.mvc", produces = "application/json")
     public @ResponseBody
     List<Cookie> showCookies(HttpSession session) {
-        List<Hint> listHints = new ArrayList<Hint>();
         WebSession ws = getWebSesion(session);
         List<Cookie> cookies = ws.getCookiesOnLastRequest();
         return cookies;
