@@ -62,7 +62,7 @@ public class ParameterService extends BaseService {
     public @ResponseBody
     List<RequestParameter> showParameters(HttpSession session) {
         List<RequestParameter> listParms = new ArrayList<RequestParameter>();
-        WebSession ws = getWebSesion(session);
+        WebSession ws = getWebSession(session);
         listParms = ws.getParmsOnLastRequest();
         Collections.sort(listParms);
         return listParms;
