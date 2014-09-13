@@ -1,7 +1,6 @@
 var app = function() {
 
     var init = function() {
-
         tooltips();
         toggleMenuLeft();
         toggleMenuRight();
@@ -11,7 +10,7 @@ var app = function() {
         sideBarLeftInit();
         window.onresize = function(){
             sideBarLeftInit();    
-        }
+        };
         closePanel();        
     };
 
@@ -210,6 +209,42 @@ var app = function() {
     var sideBarLeftInit = function(){
         $("#leftside-navigation").css("height", (window.innerHeight-80)+"px");
     };
+    
+    var highlightCurrentLession = function(){
+        var allTargetElements = 
+            $(".sidebar > #leftside-navigation > ul > li > a, " +
+            ".sidebar > #leftside-navigation > ul > li > ul > li > a ");
+        console.log("allTargetElements.length="+allTargetElements.length);
+        console.log("allTargetElements.html()="+allTargetElements.html());
+
+        var style = "background-color:lightgrey;";
+        allTargetElements.bind("click",
+                function(event){
+                    console.log("this="+this);
+                    for(var element in allTargetElements){
+                      if(element == this){
+                          
+                      }  
+                    };
+                });
+    };
+    /*
+     * find all
+     * <a href="" title="link to HTTP Splitting" ng-click="renderLesson(lesson.link)" class="ng-binding">HTTP Splitting</a>
+     * that are children of 
+     *  <li ng-repeat="lesson in item.children">
+        and 
+        <span ng-repeat="stage in lesson.children" class="ng-scope">
+            <a href="" title="link to Stage 1: Bypass Business Layer Access Control" ng-click="renderLesson(stage.link)" class="ng-binding">Stage 1: Bypass Business Layer Access Control</a>
+        </span>
+        
+        elements and associate them with an onclick function. 
+        Create a style, S, for a current lession.   
+        Once one of them is clicked, two things happen:
+         for element in allElements
+            associate S with the element
+            disassociate S with any other element
+     */
 
     //return functions
     return {
@@ -219,7 +254,8 @@ var app = function() {
         sliders: sliders,
         weather: weather,
         morrisPie: morrisPie,
-        sideBarLeftInit:sideBarLeftInit
+        sideBarLeftInit:sideBarLeftInit,
+        highlightCurrentLession:highlightCurrentLession 
     };
 }();
 

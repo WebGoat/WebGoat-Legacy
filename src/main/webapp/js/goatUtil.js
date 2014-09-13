@@ -13,7 +13,7 @@ goat.utils = {
     },
     makeFormsAjax: function() {
         //console.log("Hooking any lesson forms to make them ajax");
-        $("form").ajaxForm(options);
+//        $("form").ajaxForm(options);
     },
     displayButton: function(id,show) {
         if ($('#'+id)) {

@@ -96,8 +96,6 @@
                             <i class="fa fa-envelope"></i>
                         </button>
                     </a>
-
-
                 </div>
             </header>
 
@@ -294,6 +292,7 @@
                                                 //can be augmented later to 'resume' for a given user ... currently kluged to start at fixed lesson
                                                 var url = 'attack?Screen=32&menu=5';
                                                 angular.element($('#leftside-navigation')).scope().renderLesson(url);
+                                                app.highlightCurrentLession();
                                             });
                                             // make all forms ajax forms
                                             var options = {
@@ -352,7 +351,11 @@
                                                 goat.utils.showLessonCookiesAndParams();
                                                 goat.utils.makeFormsAjax();
                                             }
+                                            
+                                            
+//                                            app.highlightCurrentLession();
 
+    
         </script>
         <!-- About WebGoat Modal -->
         <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
