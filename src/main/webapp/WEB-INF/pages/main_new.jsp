@@ -27,6 +27,7 @@
         <!--  end of CSS -->
 
         <!-- JS -->
+        <script src="js/jquery/jquery-1.10.2.min.js"></script>
         <script src="js/angular/angular.min.js"></script>
         <!-- angular modules -->
         <script src="js/angular/angular-animate.min.js"></script>
@@ -40,7 +41,8 @@
         <![endif]-->
 
         <!--Global JS-->
-        <script src="js/jquery/jquery-1.10.2.min.js"></script>
+        
+        <script src="js/jquery_form/jquery.form.js"></script>  
         <script src="plugins/bootstrap/js/bootstrap.min.js"></script>
 
         <script src="js/application.js"></script>
@@ -74,18 +76,22 @@
                     </button>
                 </div><!--toggle navigation end-->
                 <div class="lessonTitle" >
-                    <h1 id="lessonTitle">Lesson Title in here</h1>
+                    <h1 id="lessonTitle"></h1>
                 </div><!--lesson title end-->
-                <div class="user-nav pull-right" style="margin-right: 50px;">
+                <div class="user-nav pull-right" style="margin-right: 75px;">
                     <div class="dropdown" style="display:inline">
-                        <button type="button" class="btn btn-default  dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown">
+                        <button type="button" class="btn btn-default dropdown-toggle" id="dropdownMenu1" ng-disabled="disabled">
                             <i class="fa fa-user"></i> <span class="caret"></span>
                         </button>                   
                         <ul class="dropdown-menu dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu1">
+                            <li role="presentation"><a role="menuitem" tabindex="-1" href="<c:url value="j_spring_security_logout" />">Logout</a></li>
+                            <li role="presentation" class="divider"></li>     
                             <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">User: ${user}</a></li>
                             <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">Role: ${role}</a></li>
-                            <li role="presentation" class="divider"></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" href="<c:url value="j_spring_security_logout" />">Logout</a></li>
+                            <li role="presentation" class="divider"></li>   
+                            <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">${version}</a></li>
+                            <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">Build: ${build}</a></li>                            
+
                         </ul>
                     </div>
                     <button type="button" class="btn btn-default right_nav_button" ng-click="showAbout()" data-toggle="tooltip" title="About WebGoat">
@@ -96,43 +102,44 @@
                             <i class="fa fa-envelope"></i>
                         </button>
                     </a>
+
+
                 </div>
             </header>
 
             <!--sidebar left start-->
-            <aside class="sidebar">
-                <div id="leftside-navigation" class="nano">
+            <aside class="sidebar" >
+                <div id="leftside-navigation" ng-controller="goatMenu" class="nano">
                     <ul class="nano-content">
                         <li class="sub-menu" ng-repeat="item in menuTopics">
-                            <a ng-click="expanded = !expanded" href=""><span>{{item.name}}</span><i class="fa {{item.class}}"></i></a>
-                            <ul class="slideDown" ng-show="expanded">
-                                <li ng-repeat="lesson in item.children">
-                                    <a ng-click="renderLesson(lesson.link)" title="link to {{lesson.name}}" href="">{{lesson.name}}</a>
-                                    <span ng-repeat="stage in lesson.children" >
-                                        <a ng-click="renderLesson(stage.link)" title="link to {{stage.name}}" href="">{{stage.name}}</a>
+                            <a ng-click="accordionMenu(item.id)" href=""><i class="fa {{item.class}}"></i><span>{{item.name}}</span></a><!-- expanded = !expanded-->
+                            <ul class="slideDown lessonsAndStages {{item.displayClass}}" id="{{item.id}}" isOpen=0>
+                                <li ng-repeat="lesson in item.children" class="{{lesson.selectedClass}}">
+                                    <a ng-click="renderLesson(lesson.id,lesson.link,{showSource:lesson.showSource,showHints:lesson.showHints})" id="{{lesson.id}}" class="{{lesson.selectedClass}}" title="link to {{lesson.name}}" href="">{{lesson.name}}</a><span class="{{lesson.completeClass}}"></span>
+                                    <span ng-repeat="stage in lesson.children">
+                                        <a ng-click="renderLesson(stage.id,stage.link,{showSource:stage.showSource,showHints:stage.showHints})" class="selectedClass" id="{{stage.id}}"  title="link to {{stage.name}}" href="">{{stage.name}}</a><span class="{{stage.completeClass}}"></span>
                                     </span>
                                 </li>
                             </ul>
                         </li>
                     </ul> 
-
                 </div>
 
             </aside>
             <!--sidebar left end-->
             <!--main content start-->
             <section class="main-content-wrapper">
-
-                <section id="main-content" > <!-- ng-controller="lessonController" -->
+                <section id="main-content" > <!--ng-controller="goatLesson"-->
                     <div class="row">
                         <div class="col-md-8">
                             <div class="col-md-12" align="left">
                                 <div class="panel">
                                     <div class="panel-body">
-                                        <button type="button" id="showSourceBtn" class="btn btn-primary btn-xs" ng-click="showLessonSource()">Java [Source]</button>
+                                        <button type="button" id="showSourceBtn" ng-show="showSource" class="btn btn-primary btn-xs" ng-click="showLessonSource()">Java [Source]</button>
                                         <button type="button" id="showSolutionBtn" class="btn btn-primary btn-xs" ng-click="showLessonSolution()">Solution</button>
                                         <button type="button" id="showPlanBtn" class="btn btn-primary btn-xs" ng-click="showLessonPlan()">Lesson Plan</button>
-                                        <button type="button" id="showHintsBtn" class="btn btn-primary btn-xs"  ng-click="viewHints()">Hints</button>
+                                        <button type="button" id="showHintsBtn" ng-show="showHints" class="btn btn-primary btn-xs"  ng-click="viewHints()">Hints</button>
+                                        <button type="button" id="restartLessonBtn"  class="btn btn-xs"  ng-click="restartLesson()">Restart Lesson</button>
                                     </div>
                                 </div>
                                 <div class="lessonHelp" id="lesson_hint_row">
@@ -142,7 +149,8 @@
                                             <span class="glyphicon-class glyphicon glyphicon-circle-arrow-left" id="showPrevHintBtn" ng-click="viewPrevHint()"></span>
                                             <span class="glyphicon-class glyphicon glyphicon-circle-arrow-right" id="showNextHintBtn" ng-click="viewNextHint()"></span>
                                             <br/>
-                                            {{curHint}}
+                                            <span ng-show="showHints" bind-html-unsafe="curHint"></span>
+                                            <!--<span id="curHintContainer"></span>-->
                                         </div>                                    
                                     </div>
                                 </div>
@@ -168,9 +176,10 @@
                                         <div id="cookiesAndParamsView">
                                             <div class="cookiesView">
                                                 <h4>Cookies</h4>
-                                                <table class="cookieTable table-striped table-nonfluid" ng-repeat="cookie in cookies">
+                                                <div class="cookieContainer" ng-repeat="cookie in cookies">
+                                                <table class="cookieTable table-striped table-nonfluid" >
                                                     <thead>
-                                                        <tr><th>Field</th><th>Value</th></tr>
+                                                        <tr><th class="col-sm-1"></th><th class="col-sm-1"></th></tr> <!-- Field / Value -->
                                                     </thead>
                                                     <tbody>
                                                         <tr ng-repeat="(key, value) in cookie">
@@ -181,6 +190,7 @@
                                                     <!--<li ng-repeat="(key, value) in cookie">{{key}} :: {{ value}} </td>-->
                                                     <!--</ul>-->
                                                 </table>
+                                                </div>
                                             </div>
                                             <div id="paramsView"> <!--class="paramsView"-->
                                                 <h4>Params</h4>
@@ -275,87 +285,80 @@
         </section>
 
         <!--main content end-->
-        
-    </section>
-    
-        <!-- TODO pull source into project instead of loading from external -->
-        <script src="http://malsup.github.com/jquery.form.js"></script>  
+
+        </section>
         <script>
-                                            //Load global functions
+            //Load global functions
 
-                                            // set this to true if you want to see form submissions
-                                            // set to false once we get all the kinks worked out
-                                            var DEBUG_FORM_SUBMISSION = false;
+            // set this to true if you want to see form submissions
+            // set to false once we get all the kinks worked out
+            var DEBUG_FORM_SUBMISSION = false;
 
-                                            $(document).ready(function() {
-                                                app.init();
-                                                //can be augmented later to 'resume' for a given user ... currently kluged to start at fixed lesson
-                                                var url = 'attack?Screen=32&menu=5';
-                                                angular.element($('#leftside-navigation')).scope().renderLesson(url);
-                                                app.highlightCurrentLession();
-                                            });
-                                            // make all forms ajax forms
-                                            var options = {
-                                                target: '#lesson_content', // target element(s) to be updated with server response                     
-                                                beforeSubmit: showRequest, // pre-submit callback, comment out after debugging 
-                                                success: showResponse  // post-submit callback, comment out after debugging 
+            $(document).ready(function() {
+                //TODO merge appliction.js code into other js files
+                app.init();               
+            });
+            // make all forms ajax forms
+            var options = {
+                target: '#lesson_content', // target element(s) to be updated with server response                     
+                beforeSubmit: showRequest, // pre-submit callback, comment out after debugging 
+                success: showResponse  // post-submit callback, comment out after debugging 
 
-                                                        // other available options: 
-                                                        //url:       url         // override for form's 'action' attribute 
-                                                        //type:      type        // 'get' or 'post', override for form's 'method' attribute 
-                                                        //dataType:  null        // 'xml', 'script', or 'json' (expected server response type) 
-                                                        //clearForm: true        // clear all form fields after successful submit 
-                                                        //resetForm: true        // reset the form after successful submit 
+                        // other available options: 
+                        //url:       url         // override for form's 'action' attribute 
+                        //type:      type        // 'get' or 'post', override for form's 'method' attribute 
+                        //dataType:  null        // 'xml', 'script', or 'json' (expected server response type) 
+                        //clearForm: true        // clear all form fields after successful submit 
+                        //resetForm: true        // reset the form after successful submit 
 
-                                                        // $.ajax options can be used here too, for example: 
-                                                        //timeout:   3000 
-                                            };
-                                            // pre-submit callback 
-                                            function showRequest(formData, jqForm, options) {
-                                                if (DEBUG_FORM_SUBMISSION) {
-                                                    // formData is an array; here we use $.param to convert it to a string to display it 
-                                                    // but the form plugin does this for you automatically when it submits the data 
-                                                    var queryString = $.param(formData);
+                        // $.ajax options can be used here too, for example: 
+                        //timeout:   3000 
+            };
+            // pre-submit callback 
+            function showRequest(formData, jqForm, options) {
+                if (DEBUG_FORM_SUBMISSION) {
+                    // formData is an array; here we use $.param to convert it to a string to display it 
+                    // but the form plugin does this for you automatically when it submits the data 
+                    var queryString = $.param(formData);
 
-                                                    // jqForm is a jQuery object encapsulating the form element.  To access the 
-                                                    // DOM element for the form do this: 
-                                                    // var formElement = jqForm[0]; 
+                    // jqForm is a jQuery object encapsulating the form element.  To access the 
+                    // DOM element for the form do this: 
+                    // var formElement = jqForm[0]; 
 
-                                                    alert('About to submit: \n\n' + queryString);
-                                                }
+                    alert('About to submit: \n\n' + queryString);
+                }
 
-                                                // here we could return false to prevent the form from being submitted; 
-                                                // returning anything other than false will allow the form submit to continue 
-                                                return true;
-                                            }
+                // here we could return false to prevent the form from being submitted; 
+                // returning anything other than false will allow the form submit to continue 
+                return true;
+            }
 
-                                            // post-submit callback 
-                                            function showResponse(responseText, statusText, xhr, $form) {
-                                                // for normal html responses, the first argument to the success callback 
-                                                // is the XMLHttpRequest object's responseText property 
+            // post-submit callback 
+            function showResponse(responseText, statusText, xhr, $form) {
+                // for normal html responses, the first argument to the success callback 
+                // is the XMLHttpRequest object's responseText property 
 
-                                                // if the ajaxForm method was passed an Options Object with the dataType 
-                                                // property set to 'xml' then the first argument to the success callback 
-                                                // is the XMLHttpRequest object's responseXML property 
+                // if the ajaxForm method was passed an Options Object with the dataType 
+                // property set to 'xml' then the first argument to the success callback 
+                // is the XMLHttpRequest object's responseXML property 
 
-                                                // if the ajaxForm method was passed an Options Object with the dataType 
-                                                // property set to 'json' then the first argument to the success callback 
-                                                // is the json data object returned by the server 
-                                                if (DEBUG_FORM_SUBMISSION) {
-                                                    alert('status: ' + statusText + '\n\nresponseText: \n' + responseText +
-                                                            '\n\nThe output div should have already been updated with the responseText.');
-                                                }
-                                                // JASON - SEE THIS HOOK
-                                                // update lesson cookies and params
-                                                // make any embedded forms ajaxy
-                                                goat.utils.showLessonCookiesAndParams();
-                                                goat.utils.makeFormsAjax();
-                                            }
-                                            
-                                            
-//                                            app.highlightCurrentLession();
+                // if the ajaxForm method was passed an Options Object with the dataType 
+                // property set to 'json' then the first argument to the success callback 
+                // is the json data object returned by the server 
+                if (DEBUG_FORM_SUBMISSION) {
+                    alert('status: ' + statusText + '\n\nresponseText: \n' + responseText +
+                            '\n\nThe output div should have already been updated with the responseText.');
+                }
+                // JASON - SEE THIS HOOK
+                // update lesson cookies and params
+                // make any embedded forms ajaxy
+                goat.utils.showLessonCookiesAndParams();
+                goat.utils.makeFormsAjax();
+                goat.utils.ajaxifyAttackHref(); //TODO find some way to hook scope for current menu. Likely needs larger refactor which is already started/stashed
+                //refresh menu
+                angular.element($('#leftside-navigation')).scope().renderMenu();
+            }
 
-    
         </script>
         <!-- About WebGoat Modal -->
         <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
