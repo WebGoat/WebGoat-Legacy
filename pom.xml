@@ -28,13 +28,16 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/test/java</directory>
-            </resource>
-            <resource>
                 <directory>${basedir}/src/main/java</directory>
             </resource>
             <resource>
                 <directory>${basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/test/java</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/test/resources</directory>
             </resource>
         </resources>
         <plugins>
