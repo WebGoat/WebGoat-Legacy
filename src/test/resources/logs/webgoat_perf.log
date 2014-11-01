@@ -1,0 +1,4 @@
+This file was added due to Surefire error report:
+
+log4j:ERROR setFile(null,true) call failed.
+java.io.FileNotFoundException: /logs/webgoat_perf.log (No such file or directory)

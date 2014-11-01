@@ -10,6 +10,13 @@
 	   		http://www.springframework.org/schema/context/spring-context-3.2.xsd
 			http://www.springframework.org/schema/mvc 
 			http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+    <!--  
+    This file is almost the same as 
+    /webgoat_next/src/main/webapp/WEB-INF/mvc-dispatcher-servlet.xml
+    
+    created so that tests can run under (almost) the same context. 
+    Better alternatives/suggestions are welcomed.  
+     -->
 
     <context:component-scan base-package="org.owasp.webgoat.controller, org.owasp.webgoat.lessons, org.owasp.webgoat.service" />
 	
