@@ -112,16 +112,16 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.3.2</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>1.2.1</version>
-        </dependency>
-        <dependency>
+	</dependency>-->
+        <!--<dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>1.4</version>
-        </dependency>
+	</dependency>-->
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -168,11 +168,11 @@
             <artifactId>hsqldb</artifactId>
             <version>1.8.0.7</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
-        </dependency>
+	</dependency>-->
         
         <dependency>
             <groupId>wsdl4j</groupId>
