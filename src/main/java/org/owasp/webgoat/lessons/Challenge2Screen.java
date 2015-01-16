@@ -646,8 +646,10 @@ public class Challenge2Screen extends SequentialLessonAdapter
         String protocol = s.getParser().getRawParameter(PROTOCOL, "tcp");
 
         String osName = System.getProperty("os.name");
+        boolean isWindows = (osName.indexOf("Windows") != -1)?true:false;
+        
         ExecResults er = null;
-        if (osName.indexOf("Windows") != -1)
+        if (isWindows)
         {
             String cmd = "cmd.exe /c netstat -ant -p " + protocol;
             er = Exec.execSimple(cmd);
@@ -661,11 +663,16 @@ public class Challenge2Screen extends SequentialLessonAdapter
         String results = er.getOutput();
         StringTokenizer lines = new StringTokenizer(results, "\n");
         String line = lines.nextToken();
-        // System.out.println(line);
+        //System.out.println("line=" + line);
         int start = 0;
+        int loop = 0;
         while (start == 0 && lines.hasMoreTokens())
         {
-            if ((line.indexOf("Proto") != -1))
+        	//Some Windows(non-English) does not display "Proto".
+        	//Korean OS also use Korean characters.(Maybe japanese, chinese also - not tested)
+        	//So nothing to display, impossible to process this lesson. 
+        	//but Windows netstat command always have 4 header line before body so...
+            if ((line.indexOf("Proto") != -1) || (isWindows && loop >= 3))
             {
                 start++;
             }
@@ -673,6 +680,7 @@ public class Challenge2Screen extends SequentialLessonAdapter
             {
                 line = lines.nextToken();
             }
+            loop++;
         }
         while (start > 0 && lines.hasMoreTokens())
         {
