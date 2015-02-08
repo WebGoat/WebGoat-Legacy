@@ -1,15 +1,6 @@
 
 package org.owasp.webgoat.lessons.plugin;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.ecs.Element;
 import org.apache.ecs.ElementContainer;
 import org.apache.ecs.html.BR;
@@ -21,6 +12,15 @@ import org.owasp.webgoat.lessons.SequentialLessonAdapter;
 import org.owasp.webgoat.session.DatabaseUtilities;
 import org.owasp.webgoat.session.ECSFactory;
 import org.owasp.webgoat.session.WebSession;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /***************************************************************************************************
@@ -255,24 +255,6 @@ public class SqlStringInjection extends SequentialLessonAdapter
     public String getTitle()
     {
         return ("String SQL Injection");
-    }
-
-    /**
-     * Constructor for the DatabaseFieldScreen object
-     * 
-     * @param s
-     *            Description of the Parameter
-     */
-    public void handleRequest(WebSession s)
-    {
-        try
-        {
-            super.handleRequest(s);
-        } catch (Exception e)
-        {
-            // System.out.println("Exception caught: " + e);
-            e.printStackTrace(System.out);
-        }
     }
 
 }
