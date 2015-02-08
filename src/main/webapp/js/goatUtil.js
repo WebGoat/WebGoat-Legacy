@@ -154,31 +154,31 @@ goat.utils = {
     ajaxifyAttackHref: function() {
         /* Jason I commented this implementation out
          * I think we should show the attack link on the lessons that need it by modifying the lesson
-         * itself or we could add a new button up top for "show lesson link"      
+         * itself or we could add a new button up top for "show lesson link"      */
+         //re-enabling for now ... was breaking external links
          $.each($('a[href^="attack?"]'),
-         function(i,el) {
-         var url = $(el).attr('href');
-         $(el).attr('href','#');
-         $(el).attr('link',url);
-         //TODO pull currentMenuId
-         $(el).click(
-         function() {
-         var _url = $(el).attr('link');
-         $.get(_url, {success:showResponse});
-         }
-         )
-         }
-         );
-         */
+			function(i,el) {
+				var url = $(el).attr('href');
+				$(el).unbind('click').attr('href','#').attr('link',url);
+				//TODO pull currentMenuId
+				$(el).click(
+				function() {
+					var _url = $(el).attr('link');
+					$.get(_url, {success:showResponse});
+				}
+			);
+         });
+         
         // alternate implementation
         // unbind any bound events so we are safe to be called twice
+        /*
         $('#lesson_content a').unbind('click');
         $('#lesson_content a').bind('click', function(event) {
             event.preventDefault();
             $.get(this.href, {}, function(response) {
                 $('#lesson_content').html(response);
             });
-        });
+        });*/
     }
 };
 
