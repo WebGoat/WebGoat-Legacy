@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>challenge</artifactId>
+    <packaging>jar</packaging>
+    <parent>
+        <groupId>org.owasp.webgoat.lesson</groupId>
+        <artifactId>webgoat-plugins-parent</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.owasp.webgoat</groupId>
+            <artifactId>webgoat-container</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.owasp.webgoat.lesson</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>6.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+</project>
