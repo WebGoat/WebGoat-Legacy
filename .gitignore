@@ -14,7 +14,7 @@
 /.settings/org.eclipse.wst.validation.prefs
 /.externalToolBuilders/
 .project
-/target
+*/target
 .classpath
 .idea/
 .settings/
