@@ -99,7 +99,7 @@ public class DOMXSS extends SequentialLessonAdapter
                 && attackString.toString().toLowerCase().indexOf("onload") != -1
                 && attackString.toString().toLowerCase().indexOf("alert") != -1)
         {
-            getLessonTracker(s).setStage(3);
+            getLessonTracker(s).setStage(4);
             s.setMessage("Stage 3 completed. ");
         }
         else
