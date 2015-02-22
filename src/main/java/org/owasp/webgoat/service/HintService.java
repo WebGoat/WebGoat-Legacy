@@ -12,9 +12,10 @@ import org.owasp.webgoat.lessons.AbstractLesson;
 import org.owasp.webgoat.lessons.model.Hint;
 import org.owasp.webgoat.session.WebSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -43,44 +44,57 @@ public class HintService extends BaseService {
         if (hints == null) {
             return listHints;
         }
+        int maxHintViewed = l.getLessonTracker(ws).getMaxHintLevel();
+        System.out.println("maxHintViewed: " + maxHintViewed);
         int idx = 0;
+
         for (String h : hints) {
             Hint hint = new Hint();
             hint.setHint(h);
             hint.setLesson(l.getName());
             hint.setNumber(idx);
+            if (idx <= maxHintViewed) {
+                hint.setViewed(true);
+            }
             listHints.add(hint);
             idx++;
         }
         return listHints;
     }
 
-    @RequestMapping(value = "/hint_widget.mvc", produces = "text/html")
-    public
-            ModelAndView showHintsAsHtml(HttpSession session) {
-        ModelAndView model = new ModelAndView();
-        List<Hint> listHints = new ArrayList<Hint>();
-        model.addObject("hints", listHints);
+    /**
+     * Marks hint as viewed on the current lesson Yes this is not very RESTish -
+     * clean this up in next version
+     *
+     * @param hintNumber
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "/hint_mark_as_viewed.mvc", produces = "application/json", method = RequestMethod.POST)
+    public @ResponseBody
+    boolean markHintAsViewed(HttpSession session, @RequestBody Integer hintNumber) {
+        if (hintNumber == null) {
+            return false;
+        }
         WebSession ws = getWebSession(session);
         AbstractLesson l = ws.getCurrentLesson();
-        if (l == null) {            
-            return model;
-        }
-        List<String> hints;
-        hints = l.getHintsPublic(ws);
-        if (hints == null) {
-            return model;
-        }
-        int idx = 0;
-        for (String h : hints) {
-            Hint hint = new Hint();
-            hint.setHint(h);
-            hint.setLesson(l.getName());
-            hint.setNumber(idx);
-            listHints.add(hint);
-            idx++;
-        }
-        model.setViewName("widgets/hints");
-        return model;
+        l.getLessonTracker(ws).setMaxHintLevel(hintNumber);
+        return true;
     }
+
+    /**
+     * Returns max hint viewed for current lesson
+     *
+     * @param session
+     * @return
+     */
+    @RequestMapping(value = "/max_hint_viewed.mvc", produces = "application/json")
+    public @ResponseBody
+    Integer getMaxHintViewed(HttpSession session) {
+        WebSession ws = getWebSession(session);
+        AbstractLesson l = ws.getCurrentLesson();
+        int maxHintViewed = l.getLessonTracker(ws).getMaxHintLevel();
+        return maxHintViewed;
+    }
+
 }

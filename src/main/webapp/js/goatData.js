@@ -38,7 +38,10 @@ goat.data = {
         return $http({method: 'GET', url: goatConstants.lessonTitleService});
     },
     loadRestart: function ($http) {
-        return $http({method: 'GET', url:goatConstants.restartLessonService})
+        return $http({method: 'GET', url:goatConstants.restartLessonService});
+    },
+    markHintAsViewed: function($http, hintNumber){
+        return $http({method: 'POST', url:goatConstants.hintServiceMarkAsViewed, data: hintNumber});
     }
     
 };
