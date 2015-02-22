@@ -23,14 +23,13 @@
  *
  * Getting Source ==============
  *
- * Source for this application is maintained at https://github.com/WebGoat/WebGoat, a repository
- * for free software projects.
+ * Source for this application is maintained at
+ * https://github.com/WebGoat/WebGoat, a repository for free software projects.
  *
  * For details, please see http://webgoat.github.io
  */
 package org.owasp.webgoat.service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpSession;

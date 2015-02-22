@@ -4,12 +4,12 @@
 /* ### GOAT CONTROLLERS ### */
 
 /* menu controller */
-var goatMenu = function($scope, $http, $modal, $log, $templateCache) {
+var goatMenu = function ($scope, $http, $modal, $log, $templateCache) {
     $scope.cookies = [];
     $scope.params = [];
-    $scope.renderMenu = function() {
+    $scope.renderMenu = function () {
         goat.data.loadMenu($http).then(//$http({method: 'GET', url: goatConstants.lessonService})
-                function(menuData) {
+                function (menuData) {
                     var menuItems = goat.utils.addMenuClasses(goatConstants.menuPrefix.concat(menuData.data));
                     //top-tier 'categories'
                     for (var i = 0; i < menuItems.length; i++) {
@@ -57,14 +57,14 @@ var goatMenu = function($scope, $http, $modal, $log, $templateCache) {
                     }
 
                 },
-                function(error) {
+                function (error) {
                     // TODO - handle this some way other than an alert
                     console.error("Error rendering menu: " + error);
                 }
         );
     };
 
-    $scope.renderLesson = function(id, url, showControls) {//TODO convert to single object parameter
+    $scope.renderLesson = function (id, url, showControls) {//TODO convert to single object parameter
         $scope.hintIndex = 0;
         var curScope = $scope;
         $('.lessonHelp').hide();
@@ -74,9 +74,9 @@ var goatMenu = function($scope, $http, $modal, $log, $templateCache) {
         curScope.parameters = goat.utils.scrapeParams(url);
         // lesson content
         goat.data.loadLessonContent($http, url).then(
-                function(reply) {
+                function (reply) {
                     goat.data.loadLessonTitle($http).then(
-                            function(reply) {
+                            function (reply) {
                                 $("#lessonTitle").text(reply.data);
                             }
                     );
@@ -93,7 +93,7 @@ var goatMenu = function($scope, $http, $modal, $log, $templateCache) {
         )
         $scope.renderMenu();
     };
-    $scope.accordionMenu = function(id) {
+    $scope.accordionMenu = function (id) {
         if ($('ul#' + id).attr('isOpen') == 0) {
             $scope.expandMe = true;
         } else {
@@ -114,19 +114,19 @@ var goatMenu = function($scope, $http, $modal, $log, $templateCache) {
 }
 
 /* lesson controller */
-var goatLesson = function($scope, $http, $log) {
+var goatLesson = function ($scope, $http, $log) {
 
     $('#hintsView').hide();
     // adjust menu to lessonContent size if necssary
     //cookies
 
-    $scope.$on('lessonUpdate', function(params) {
+    $scope.$on('lessonUpdate', function (params) {
         $scope.parameters = arguments[1].params;
         $scope.showHints = (arguments[1].showControls && arguments[1].showControls.showHints);
         $scope.showSource = (arguments[1].showControls && arguments[1].showControls.showSource);
         curScope = $scope; //TODO .. update below, this curScope is probably not needed
         goat.data.loadCookies($http).then(
-                function(resp) {
+                function (resp) {
                     curScope.cookies = resp.data;
                 }
         );
@@ -134,10 +134,11 @@ var goatLesson = function($scope, $http, $log) {
         curScope.hintIndex = 0;
         if ($scope.showHints) {
             goat.data.loadHints($http).then(
-                    function(resp) {
+                    function (resp) {
                         curScope.hints = resp.data;
                         if (curScope.hints.length > 0 && curScope.hints[0].hint.indexOf(goatConstants.noHints) === -1) {
                             goat.utils.displayButton('showHintsBtn', true);
+
                         } else {
                             goat.utils.displayButton('showHintsBtn', false);
                         }
@@ -150,7 +151,7 @@ var goatLesson = function($scope, $http, $log) {
         //source
         if ($scope.showSource) {
             goat.data.loadSource($http).then(
-                    function(resp) {
+                    function (resp) {
                         curScope.source = resp.data;
                     }
             );
@@ -160,13 +161,13 @@ var goatLesson = function($scope, $http, $log) {
 
         //plan
         goat.data.loadPlan($http).then(
-                function(resp) {
+                function (resp) {
                     curScope.plan = resp.data;
                 }
         );
         //solution
         goat.data.loadSolution($http).then(
-                function(resp) {
+                function (resp) {
                     curScope.solution = resp.data;
                 }
         );
@@ -175,27 +176,27 @@ var goatLesson = function($scope, $http, $log) {
     //goat.utils.scrollToTop();
 
 
-    $scope.showLessonSource = function() {
+    $scope.showLessonSource = function () {
         $('.lessonHelp').hide();
         $('#lesson_source_row').show();
         goat.utils.scrollToHelp();
     }
 
-    $scope.showLessonPlan = function() {
+    $scope.showLessonPlan = function () {
         $('.lessonHelp').hide();
         $("#lesson_plan").html($scope.plan);
         $('#lesson_plan_row').show();
         goat.utils.scrollToHelp();
     }
 
-    $scope.showLessonSolution = function() {
+    $scope.showLessonSolution = function () {
         $('.lessonHelp').hide();
         $("#lesson_solution").html($scope.solution);
         $('#lesson_solution_row').show();
         goat.utils.scrollToHelp();
     }
 
-    $scope.manageHintButtons = function() {
+    $scope.manageHintButtons = function () {
         if ($scope.hintIndex === $scope.hints.length - 1) {
             $('#showNextHintBtn').css('visibility', 'hidden');
         } else if ($scope.hintIndex < $scope.hints.length - 1) {
@@ -209,7 +210,7 @@ var goatLesson = function($scope, $http, $log) {
         }
     };
 
-    $scope.viewHints = function() {
+    $scope.viewHints = function () {
         if (!$scope.hints) {
             return;
         }
@@ -218,44 +219,49 @@ var goatLesson = function($scope, $http, $log) {
         $('#lesson_hint_row').show();
         //goat.utils.scrollToHelp();
         //TODO
-        $scope.curHint = $scope.hints[$scope.hintIndex].hint;
+        var prefix = "[" + ($scope.hintIndex + 1) + " of " + $scope.hints.length + "] ";
+        $scope.curHint = prefix + $scope.hints[$scope.hintIndex].hint;
         //$scope.curHint = $sce.trustAsHtml($scope.hints[$scope.hintIndex].hint);
         //TODO get html binding workin in the UI ... in the meantime ...
         //$scope.renderCurHint();
         $scope.manageHintButtons();
     };
 
-    $scope.viewNextHint = function() {
+    $scope.viewNextHint = function () {
         $scope.hintIndex++;
-        $scope.curHint = $scope.hints[$scope.hintIndex].hint;
+        var prefix = "[" + ($scope.hintIndex + 1) + " of " + $scope.hints.length + "] ";
+        $scope.curHint = prefix + $scope.hints[$scope.hintIndex].hint;
+        // fire off hint viewed call
+        goat.data.markHintAsViewed($http, $scope.hintIndex);
         $scope.renderCurHint();
         $scope.manageHintButtons();
     };
 
-    $scope.viewPrevHint = function() {
+    $scope.viewPrevHint = function () {
         $scope.hintIndex--;
-        $scope.curHint = $scope.hints[$scope.hintIndex].hint;
+        var prefix = "[" + ($scope.hintIndex + 1) + " of " + $scope.hints.length + "] ";
+        $scope.curHint = prefix + $scope.hints[$scope.hintIndex].hint;
         $scope.renderCurHint();
         $scope.manageHintButtons();
     };
 
-    $scope.renderCurHint = function() {
+    $scope.renderCurHint = function () {
         $('#curHintContainer').html($scope.curHint);
-    }
+    };
 
-    $scope.hideHints = function() {
+    $scope.hideHints = function () {
 
     };
 
-    $scope.restartLesson = function() {
+    $scope.restartLesson = function () {
         goat.data.loadRestart($http).then(
-                function(resp) {
+                function (resp) {
                     angular.element($('#leftside-navigation')).scope().renderLesson(null, resp.data, {showSource: $scope.showSource, showHints: $scope.showHints});
                 }
         )
     }
 
-    $scope.showAbout = function() {
+    $scope.showAbout = function () {
         $('#aboutModal').modal({
             //remote: 'about.mvc'
         });
