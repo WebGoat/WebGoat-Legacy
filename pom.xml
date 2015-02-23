@@ -9,6 +9,7 @@
     <modules>
         <module>sql_string_injection</module>
         <module>challenge</module>
+        <module>welcome-screen</module>
         <module>common</module>
     </modules>
 
