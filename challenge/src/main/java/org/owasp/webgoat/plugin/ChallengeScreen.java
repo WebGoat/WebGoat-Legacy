@@ -28,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -170,7 +171,7 @@ public class ChallengeScreen extends SequentialLessonAdapter
         Input input = new Input(Input.HIDDEN, USER, user);
         ec.addElement(input);
 
-        Cookie newCookie = new Cookie(USER_COOKIE, Encoding.base64Encode(user));
+        Cookie newCookie = new Cookie(USER_COOKIE, base64Encode(user));
         s.getResponse().addCookie(newCookie);
         phoneHome(s, "User: " + username + " --> " + "Pass: " + password);
         // <END_OMIT_SOURCE>
@@ -193,7 +194,7 @@ public class ChallengeScreen extends SequentialLessonAdapter
     {
         // <START_OMIT_SOURCE>
 
-        Cookie newCookie = new Cookie(USER_COOKIE, Encoding.base64Encode(user));
+        Cookie newCookie = new Cookie(USER_COOKIE, base64Encode(user));
         s.getResponse().addCookie(newCookie);
 
         ElementContainer ec = new ElementContainer();
@@ -219,7 +220,7 @@ public class ChallengeScreen extends SequentialLessonAdapter
         	cookie = URLDecoder.decode(cookie,"utf-8");
         }
         
-        String user = Encoding.base64Decode(cookie);
+        String user = base64Decode(cookie);
         String query = "SELECT * FROM user_data WHERE last_name = '" + user + "'";
         Vector<String> v = new Vector<String>();
 
@@ -805,5 +806,44 @@ public class ChallengeScreen extends SequentialLessonAdapter
         }
 
         return (null);
+    }
+
+    // local encoders
+
+    private static sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();
+
+    private static sun.misc.BASE64Encoder encoder = new sun.misc.BASE64Encoder();
+    /**
+     * Returns the base 64 encoding of a string.
+     *
+     * @param str
+     *            Description of the Parameter
+     * @return Description of the Return Value
+     */
+
+    public static String base64Encode(String str)
+    {
+
+        byte[] b = str.getBytes();
+
+        return (encoder.encode(b));
+    }
+
+    /**
+     * Returns the base 64 decoding of a string.
+     *
+     * @param str
+     *            Description of the Parameter
+     * @return Description of the Return Value
+     * @exception java.io.IOException
+     *                Description of the Exception
+     */
+
+    public static String base64Decode(String str) throws IOException
+    {
+
+        byte[] b = decoder.decodeBuffer(str);
+
+        return (new String(b));
     }
 }
