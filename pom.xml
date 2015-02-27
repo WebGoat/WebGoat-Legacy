@@ -7,8 +7,9 @@
     <packaging>pom</packaging>
     <version>1.0</version>
     <modules>
-        <module>sql_string_injection</module>
+        <module>sql-string-injection</module>
         <module>challenge</module>
+        <module>how-to-work</module>
         <module>common</module>
     </modules>
 
