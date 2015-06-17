@@ -83,3 +83,13 @@ project using maven:
 
     > cd target
     > java -jar WebGoat-6.0-exec-war.jar http://localhost:8080/WebGoat
+    
+4. The package phase also builds a war file. You can manually deploy it using:
+
+    > cp target/WebGoat-6.0-exec-war.war <tomcat>/webapps/
+    > cd .. 
+    > clone git@github.com:WebGoat/WebGoat-Lessons.git
+    > cd WebGoat-Lessons
+    > mvn package
+    >cp plugins/* <tomcat>/webapps/WebGoat-6.0-exec-war/plugin_lessons/
+  
