@@ -227,6 +227,7 @@ public class WebSession {
     public WebSession(WebgoatContext webgoatContext, ServletContext context) {
         this.webgoatContext = webgoatContext;
         // initialize from web.xml
+        System.out.println("Here");
         showParams = webgoatContext.isShowParams();
         showCookies = webgoatContext.isShowCookies();
         showSource = webgoatContext.isShowSource();
