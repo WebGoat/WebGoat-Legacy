@@ -6,28 +6,33 @@ import java.util.Iterator;
 
 class UserDatabase {
 	private Connection userDB;
-	private final String USER_DB_URI = "jdbc:h2:userDatabase";
+	private final String USER_DB_URI = "jdbc:h2:userDatabase:./users";
 
-	private final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL);";
-	private final String CREATE_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS roles (id INTEGER PRIMARY KEY, rolename VARCHAR(255) NOT NULL UNIQUE);";
-	private final String CREATE_USER_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS user_roles (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, role_id INTEGER NOT NULL);";
-	private final String CREATE_USER_ROLES_USER_KEY = "ALTER TABLE user_roles ADD CONSTRAINT user_key FOREIGN KEY user_id REFERENCES users(id);";
-	private final String CREATE_USER_ROLES_ROLE_KEY = "ALTER TABLE user_roles ADD CONSTRAINT role_key FOREIGN KEY role_id REFERENCES roles(id);";
+	private final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTO_INCREMENT, username VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL);";
+	private final String CREATE_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS roles (id INTEGER PRIMARY KEY AUTO_INCREMENT, rolename VARCHAR(255) NOT NULL UNIQUE);";
+	private final String CREATE_USER_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS user_roles (id INTEGER PRIMARY KEY AUTO_INCREMENT, user_id INTEGER NOT NULL, role_id INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES users(id), FOREIGN KEY (role_id) REFERENCES roles(id));";
 	private final String ADD_DEFAULT_USERS = "INSERT INTO users (username, password) VALUES ('webgoat','webgoat'),('basic','basic'),('guest','guest');";
 	private final String ADD_DEFAULT_ROLES = "INSERT INTO roles (rolename) VALUES ('webgoat_basic'),('webgoat_admin'),('webgoat_user');";
-	private final String ADD_ROLE_TO_USER = "INSERT INTO user_roles (user_id, role_id) VALUES SELECT users.id, roles.id FROM users, roles WHERE users.username = ? AND roles.rolename = ?;";
+	private final String ADD_ROLE_TO_USER = "INSERT INTO user_roles (user_id, role_id) SELECT users.id, roles.id FROM users, roles WHERE users.username = ? AND roles.rolename = ?;";
 
 	private final String QUERY_ALL_USERS = "SELECT username FROM users;";
-	private final String QUERY_ALL_ROLES_FOR_USERNAME = "SELECT rolename FROM roles WHERE roles.id = user_roles.role_id AND user_roles.user_id = users.id AND users.username = ?;";
+	private final String QUERY_ALL_ROLES_FOR_USERNAME = "SELECT rolename FROM roles, user_roles, users WHERE roles.id = user_roles.role_id AND user_roles.user_id = users.id AND users.username = ?;";
+	private final String QUERY_TABLE_COUNT = "SELECT count(id) AS count FROM table;";
 
-	private final String DELETE_ALL_ROLES_FOR_USER = "DELETE FROM roles WHERE roles.user_id = users.id and users.username = ?;";
-	private final String DELETE_USER = "DELETE FROM users WHERE user.username = ?;";
+	private final String DELETE_ALL_ROLES_FOR_USER = "DELETE FROM user_roles WHERE user_id IN (SELECT id FROM users WHERE username = ?);";
+	private final String DELETE_USER = "DELETE FROM users WHERE username = ?;";
 
 	public UserDatabase() {
 		createDefaultTables();
-		createDefaultUsers();
-		createDefaultRoles();
-		addDefaultRolesToDefaultUsers();
+		if (getTableCount("users") <= 0) {
+			createDefaultUsers();
+		}
+		if (getTableCount("roles") <= 0) {
+			createDefaultRoles();
+		}
+		if (getTableCount("user_roles") <= 0) {
+			addDefaultRolesToDefaultUsers();
+		}
 	}
 
 	public boolean open() {
@@ -36,7 +41,8 @@ class UserDatabase {
 				Class.forName("org.h2.Driver");
 				userDB = DriverManager.getConnection(USER_DB_URI, "webgoat_admin", "");
 			}
-		} catch (Exception e) {
+		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -47,9 +53,29 @@ class UserDatabase {
 			if (userDB != null && !userDB.isClosed())
 				userDB.close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 		return true;
+	}
+
+	public int getTableCount(String tableName) {
+		int count = 0;
+		try {
+			open();
+			Statement statement = userDB.createStatement();
+			ResultSet countResult = statement.executeQuery(QUERY_TABLE_COUNT.replace("table", tableName));
+			if (countResult.next()) {
+				count = countResult.getInt("count");
+			}
+			countResult.close();
+			statement.close();
+			close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			count = -1;
+		}
+		return count;
 	}
 
 	public Iterator<User> getUsers() {
@@ -76,6 +102,7 @@ class UserDatabase {
 			userResults.close();
 			close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			users = new ArrayList<User>();
 		}
 
@@ -92,6 +119,7 @@ class UserDatabase {
 			statement.close();
 			close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -119,6 +147,7 @@ class UserDatabase {
 
 			close();	
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -135,11 +164,10 @@ class UserDatabase {
 			statement.execute(CREATE_USERS_TABLE);
 			statement.execute(CREATE_ROLES_TABLE);
 			statement.execute(CREATE_USER_ROLES_TABLE);
-			statement.execute(CREATE_USER_ROLES_USER_KEY);
-			statement.execute(CREATE_USER_ROLES_ROLE_KEY);
 			statement.close();
 			close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -153,6 +181,7 @@ class UserDatabase {
 			statement.close();
 			close();	
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -166,6 +195,7 @@ class UserDatabase {
 			statement.close();
 			close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -176,5 +206,6 @@ class UserDatabase {
 		addRoleToUser("basic", "webgoat_user");
 		addRoleToUser("basic", "webgoat_basic");
 		addRoleToUser("guest", "webgoat_user");
+		addRoleToUser("michael", "webgoat_user");
 	}
 }
