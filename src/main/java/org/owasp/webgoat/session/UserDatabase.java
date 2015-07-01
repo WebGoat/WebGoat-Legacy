@@ -206,6 +206,5 @@ class UserDatabase {
 		addRoleToUser("basic", "webgoat_user");
 		addRoleToUser("basic", "webgoat_basic");
 		addRoleToUser("guest", "webgoat_user");
-		addRoleToUser("michael", "webgoat_user");
 	}
 }
