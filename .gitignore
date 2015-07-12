@@ -23,4 +23,5 @@ src/main/main.iml
 *.BASE.*.jsp
 *.LOCAL.*.jsp
 *.REMOTE.*.jsp
+*.iml
 
