@@ -3,10 +3,11 @@ package org.owasp.webgoat.session;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.io.File;
 
 class UserDatabase {
 	private Connection userDB;
-	private final String USER_DB_URI = "jdbc:h2:userDatabase:./users";
+	private final String USER_DB_URI = "jdbc:h2:" + System.getProperty("user.dir") + File.separator + "UserDatabase";
 
 	private final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTO_INCREMENT, username VARCHAR(255) NOT NULL UNIQUE);";
 	private final String CREATE_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS roles (id INTEGER PRIMARY KEY AUTO_INCREMENT, rolename VARCHAR(255) NOT NULL UNIQUE);";
