@@ -8,10 +8,10 @@ class UserDatabase {
 	private Connection userDB;
 	private final String USER_DB_URI = "jdbc:h2:userDatabase:./users";
 
-	private final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTO_INCREMENT, username VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL);";
+	private final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTO_INCREMENT, username VARCHAR(255) NOT NULL UNIQUE);";
 	private final String CREATE_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS roles (id INTEGER PRIMARY KEY AUTO_INCREMENT, rolename VARCHAR(255) NOT NULL UNIQUE);";
 	private final String CREATE_USER_ROLES_TABLE = "CREATE TABLE IF NOT EXISTS user_roles (id INTEGER PRIMARY KEY AUTO_INCREMENT, user_id INTEGER NOT NULL, role_id INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES users(id), FOREIGN KEY (role_id) REFERENCES roles(id));";
-	private final String ADD_DEFAULT_USERS = "INSERT INTO users (username, password) VALUES ('webgoat','webgoat'),('basic','basic'),('guest','guest');";
+	private final String ADD_DEFAULT_USERS = "INSERT INTO users (username) VALUES ('webgoat'),('basic'),('guest');";
 	private final String ADD_DEFAULT_ROLES = "INSERT INTO roles (rolename) VALUES ('webgoat_basic'),('webgoat_admin'),('webgoat_user');";
 	private final String ADD_ROLE_TO_USER = "INSERT INTO user_roles (user_id, role_id) SELECT users.id, roles.id FROM users, roles WHERE users.username = ? AND roles.rolename = ?;";
 
