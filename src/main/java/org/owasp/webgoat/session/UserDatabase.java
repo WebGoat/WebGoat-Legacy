@@ -44,6 +44,9 @@ class UserDatabase {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return false;
 		}
 		return true;
 	}
