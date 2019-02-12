@@ -5,3 +5,6 @@ notifications:
 
 jdk:
 - oraclejdk8
+
+after_success:
+  - bash <(curl -s https://scripts.scantist.com/staging/ci-travis-jar.sh)
