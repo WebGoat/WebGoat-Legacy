@@ -158,10 +158,13 @@ goat.utils = {
 				var url = $(el).attr('href');
 				$(el).unbind('click').attr('href','#').attr('link',url);
 				//TODO pull currentMenuId
-				$(el).click(function() {
+				$(el).click(function(event) {
 					event.preventDefault();
 					var _url = $(el).attr('link');
-					$.get(_url, {success:showResponse});
+                    console.log("About to GET " + _url);
+					$.get(_url)
+                        .done(function(response) {$('#lesson_content').html(response);})
+                        .fail(function() {alert("failed a GET " + _url);});
 				}
 			);
          });
