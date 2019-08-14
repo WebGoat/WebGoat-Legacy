@@ -1,7 +1,7 @@
 language: java
   
 jdk:
-  - oraclejdk8
+  - openjdk8
   
 # If your build needs more advanced behavior, see detailed Travis CI instructions:
 # https://docs.travis-ci.com/user/languages/java/
