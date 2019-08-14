@@ -1,3 +1,5 @@
+[![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/ilatypov/WebGoat-Legacy/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/ilatypov/WebGoat-Legacy/branches/master)
+
 # Important Information
 
 Thank you for downloading WebGoat!  This is the WebGoat Legacy version which is essentially the WebGoat 5 with a new UI. 
