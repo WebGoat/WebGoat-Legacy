@@ -4,7 +4,7 @@ notifications:
   email: false
 
 jdk:
-- oraclejdk9
+- oraclejdk8
 
 after_success:
   - bash <(curl -s https://scripts.scantist.com/ci-travis-jar.sh)
