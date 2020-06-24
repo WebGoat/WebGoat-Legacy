@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: jonathell/multi-manager:1.0
+      
+    steps:
+      - checkout
+      - run: 
+          name: install dependencies
+          command: | 
+            mvn dependency:tree
+            bash <(curl -s https://scripts.scantist.com/ci-circle.sh)
