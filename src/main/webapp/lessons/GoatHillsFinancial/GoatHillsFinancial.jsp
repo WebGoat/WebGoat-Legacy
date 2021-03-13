@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=ISO-8859-1" language="java" 
 	import="org.owasp.webgoat.session.*" 
 	errorPage="" %>
-<%@page import="org.owasp.webgoat.lessons.GoatHillsFinancial.GoatHillsFinancial;"%>
+<%@page import="org.owasp.webgoat.lessons.GoatHillsFinancial.GoatHillsFinancial"%>
 <style>
 <jsp:include page="GoatHillsFinancial.css" />
 </style>
