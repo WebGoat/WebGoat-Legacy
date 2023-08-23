@@ -1,7 +1,7 @@
 # Sonatype DepShield
 [![DepShield Badge](https://depshield.sonatype.org/badges/WebGoat/WebGoat-Legacy/depshield.svg)](https://depshield.github.io)
 
-# Important Information
+# Important Information please read carefully
 
 Thank you for downloading WebGoat!  This is the WebGoat Legacy version which is essentially the WebGoat 5 with a new UI. 
 
