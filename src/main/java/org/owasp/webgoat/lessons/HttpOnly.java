@@ -1,4 +1,3 @@
-
 package org.owasp.webgoat.lessons;
 
 import java.util.ArrayList;
@@ -424,22 +423,20 @@ public class HttpOnly extends LessonAdapter
 
     private String getJavaScript()
     {
-        StringBuffer buffer = new StringBuffer();
+        String script = """
+            function myAlert() {
+                alert(document.cookie);
+                document.form.read_result.value=document.cookie;
+                return true;
+            }
+            function modifyAlert() {
+                document.cookie='unique2u=HACKED;';
+                alert(document.cookie);
+                return true;
+            }
+        """;
 
-        buffer.append("<script language=\"javascript\">\n");
-        buffer.append("function myAlert() {\n");
-        buffer.append("alert(document.cookie);\n");
-        buffer.append("document.form.read_result.value=document.cookie;\n");
-        buffer.append("return true;\n");
-        buffer.append("}\n");
-        buffer.append("function modifyAlert() {\n");
-        buffer.append("document.cookie='" + UNIQUE2U + "=HACKED;\';\n");
-        buffer.append("alert(document.cookie);\n");
-        buffer.append("return true;\n");
-        buffer.append("}\n");
-        buffer.append("</script>\n");
-
-        return buffer.toString();
+        return script;
     }
 
     private String getBrowserType(WebSession s)

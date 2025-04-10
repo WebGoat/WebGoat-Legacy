@@ -1,4 +1,3 @@
-
 package org.owasp.webgoat.lessons;
 
 import java.util.ArrayList;
@@ -245,4 +244,11 @@ public class BypassHtmlFieldRestrictions extends SequentialLessonAdapter
         }
     }
 
+}
+
+// Enhanced the HtmlField record with a validation method
+public record HtmlField(String name, String value) {
+    public boolean isValid() {
+        return name != null && !name.isBlank() && value != null && !value.isBlank();
+    }
 }

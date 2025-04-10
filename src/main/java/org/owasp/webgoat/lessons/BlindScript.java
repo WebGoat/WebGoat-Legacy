@@ -399,5 +399,5 @@ public class BlindScript extends LessonAdapter
         {
         return programText;
         }
-    }   
-    
+    }
+

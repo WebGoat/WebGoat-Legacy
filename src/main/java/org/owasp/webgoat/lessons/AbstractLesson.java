@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * @author Bruce Mayhew <a href="http://code.google.com/p/webgoat">WebGoat</a>
  * @created October 28, 2003
  */
-public abstract class AbstractLesson extends Screen implements Comparable<Object> {
+public sealed class AbstractLesson extends Screen implements Comparable<Object> permits BeginnerLesson, AdvancedLesson {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractLesson.class);
 
@@ -805,4 +805,12 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
     	}
     	return labelManager;
     }
+}
+
+public final class BeginnerLesson extends AbstractLesson {
+    // Implementation specific to BeginnerLesson
+}
+
+public final class AdvancedLesson extends AbstractLesson {
+    // Implementation specific to AdvancedLesson
 }

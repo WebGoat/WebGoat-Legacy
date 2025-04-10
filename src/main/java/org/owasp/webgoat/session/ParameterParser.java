@@ -869,4 +869,20 @@ public class ParameterParser {
     public void update(ServletRequest request) {
         this.request = request;
     }
+
+    /**
+     * Example method demonstrating switch expression usage.
+     *
+     * @param parameter The parameter to evaluate.
+     * @return The result based on the parameter.
+     */
+    public String evaluateParameter(String parameter) {
+        // Used switch expression for cleaner control flow
+        String result = switch (parameter) {
+            case "username" -> "Valid username";
+            case "password" -> "Valid password";
+            default -> "Invalid parameter";
+        };
+        return result;
+    }
 }

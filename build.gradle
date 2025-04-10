@@ -43,10 +43,15 @@ dependencies {
     implementation 'org.slf4j:slf4j-log4j12:2.0.9'
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 tasks.withType(JavaCompile) {
     options.encoding = 'ISO-8859-1'
-    sourceCompatibility = '1.6'
-    targetCompatibility = '1.6'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
 }
 
 war {

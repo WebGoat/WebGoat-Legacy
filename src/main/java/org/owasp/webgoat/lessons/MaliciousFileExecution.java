@@ -358,16 +358,18 @@ public class MaliciousFileExecution extends LessonAdapter
             fill_uploads_and_target_parent_directory(s);
         }
         
-    String instructions = "The form below allows you to upload an image which will be displayed on this page.  " 
-        + "Features like this are often found on web based discussion boards and social networking sites.  " 
-        + "This feature is vulnerable to Malicious File Execution."
-        + "<br><br>In order to pass this lesson, upload and run a malicious file.  In order to prove that your file can execute,"
-        + " it should create another file named:<br><br> "
-        + uploads_and_target_parent_directory
-        + TARGET_RELATIVE_PATH 
-        + java.io.File.separator 
-        + s.getUserName() + ".txt" 
-        + "<br><br>Once you have created this file, you will pass the lesson.";
+    String instructions = """
+        The form below allows you to upload an image which will be displayed on this page.  
+        Features like this are often found on web based discussion boards and social networking sites.  
+        This feature is vulnerable to Malicious File Execution.
+        
+        In order to pass this lesson, upload and run a malicious file.  In order to prove that your file can execute,
+        it should create another file named:
+        
+        """ + uploads_and_target_parent_directory + TARGET_RELATIVE_PATH + java.io.File.separator + s.getUserName() + ".txt" + """
+        
+        Once you have created this file, you will pass the lesson.
+        """;
 
     return (instructions);
     }
