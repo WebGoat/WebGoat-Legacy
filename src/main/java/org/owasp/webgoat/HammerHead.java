@@ -361,6 +361,19 @@ import java.util.TimeZone;
     }
 
     /**
+     * This method sets the required security headers in the response.
+     *
+     * @param response The HttpServletResponse object
+     */
+    protected static void setSecurityHeaders(HttpServletResponse response) {
+        response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+        response.setHeader("X-Content-Type-Options", "nosniff");
+        response.setHeader("X-Frame-Options", "DENY");
+        response.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self'; object-src 'none';");
+        response.setHeader("Referrer-Policy", "no-referrer");
+    }
+
+    /**
      * Description of the Method
      *
      * @param request Description of the Parameter
