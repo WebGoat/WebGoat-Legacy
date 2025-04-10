@@ -12,29 +12,33 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class LessonTitleService extends BaseService {
 	
-	 /**
-     * Returns the title for the current attack
+    /**
+     * Retrieves the title for the current lesson.
      *
-     * @param session
-     * @return
+     * @param session the HTTP session object
+     * @return the title of the current lesson
      */
     @RequestMapping(value = "/lessontitle.mvc", produces = "application/html")
-    public @ResponseBody
-    String showPlan(HttpSession session) {
-        WebSession ws = getWebSession(session);
+    public @ResponseBody String showPlan(HttpSession session) {
+        var ws = getWebSession(session);
         return getLessonTitle(ws);
     }
 
+    /**
+     * Retrieves the title of the current lesson.
+     *
+     * @param s the current web session
+     * @return the title of the lesson, or an empty string if unavailable
+     */
     private String getLessonTitle(WebSession s) {
-    	String title = "";
-        int scr = s.getCurrentScreen();
-        Course course = s.getCourse();
+        var scr = s.getCurrentScreen();
+        var course = s.getCourse();
 
         if (s.isUser() || s.isChallenge()) {
-            AbstractLesson lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
-            title = lesson != null ? lesson.getTitle() : "";
+            var lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
+            return lesson != null ? lesson.getTitle() : "";
         }
-        return title;
+        return "";
     }
 
 }

@@ -2,6 +2,7 @@ package org.owasp.webgoat;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Objects;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -64,39 +65,23 @@ public class LessonSource extends HammerHead {
      * @exception IOException Description of the Exception
      * @exception ServletException Description of the Exception
      */
+    @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String source = null;
 
         try {
-			// System.out.println( "Entering doPost: " );
-            // System.out.println( " - request " + request);
-            // System.out.println( " - principle: " + request.getUserPrincipal()
-            // );
-            // setCacheHeaders(response, 0);
-            WebSession session = (WebSession) request.getSession(true).getAttribute(WebSession.SESSION);
-            // FIXME: Too much in this call.
+            var session = (WebSession) request.getSession(true).getAttribute(WebSession.SESSION);
             session.update(request, response, this.getServletName());
 
             boolean showSolution = session.getParser().getBooleanParameter("solution", false);
             boolean showSource = session.getParser().getBooleanParameter("source", false);
             if (showSolution) {
-
-                // Get the Java solution of the lesson.
                 source = getSolution(session);
-
-                int scr = session.getCurrentScreen();
-                Course course = session.getCourse();
-                AbstractLesson lesson = course.getLesson(session, scr, AbstractLesson.USER_ROLE);
+                var lesson = session.getCourse().getLesson(session, session.getCurrentScreen(), AbstractLesson.USER_ROLE);
                 lesson.getLessonTracker(session).setViewedSolution(true);
-
             } else if (showSource) {
-
-                // Get the Java source of the lesson. FIXME: Not needed
                 source = getSource(session);
-
-                int scr = session.getCurrentScreen();
-                Course course = session.getCourse();
-                AbstractLesson lesson = course.getLesson(session, scr, AbstractLesson.USER_ROLE);
+                var lesson = session.getCourse().getLesson(session, session.getCurrentScreen(), AbstractLesson.USER_ROLE);
                 lesson.getLessonTracker(session).setViewedSource(true);
             }
         } catch (Throwable t) {
@@ -109,8 +94,6 @@ public class LessonSource extends HammerHead {
                 thr.printStackTrace();
                 log(request, "Could not write error screen: " + thr.getMessage());
             }
-            // System.out.println( "Leaving doPost: " );
-
         }
     }
 
@@ -173,13 +156,8 @@ public class LessonSource extends HammerHead {
     protected void writeSource(String s, HttpServletResponse response) throws IOException {
         response.setContentType("text/html");
 
-        PrintWriter out = response.getWriter();
-
-        if (s == null) {
-            s = new String();
+        try (var out = response.getWriter()) {
+            out.print(Objects.requireNonNullElse(s, ""));
         }
-
-        out.print(s);
-        out.close();
     }
 }

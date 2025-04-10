@@ -1,4 +1,3 @@
-
 package org.owasp.webgoat.lessons.admin;
 
 import org.owasp.webgoat.lessons.AbstractLesson;
@@ -52,11 +51,8 @@ public abstract class AdminScreen extends Screen
      * @param q
      *            Description of the Parameter
      */
-    public AdminScreen(WebSession s, String q)
-    {
-        setQuery(q);
-
-        // setupAdmin(s); FIXME: what was this supposed to do?
+    public AdminScreen(WebSession s, String q) {
+        this.query = q;
     }
 
     /**
@@ -65,15 +61,15 @@ public abstract class AdminScreen extends Screen
      * @param s
      *            Description of the Parameter
      */
-    public AdminScreen(WebSession s)
-    {
+    public AdminScreen(WebSession s) {
+        this(s, null);
     }
 
     /**
      * Constructor for the AdminScreen object
      */
-    public AdminScreen()
-    {
+    public AdminScreen() {
+        this(null, null);
     }
 
     /**

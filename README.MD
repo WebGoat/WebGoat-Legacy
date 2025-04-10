@@ -1,88 +1,88 @@
-# Sonatype DepShield
+# WebGoat Legacy
+
 [![DepShield Badge](https://depshield.sonatype.org/badges/WebGoat/WebGoat-Legacy/depshield.svg)](https://depshield.github.io)
 
-# Important Information
+## Overview
 
-Thank you for downloading WebGoat!  This is the WebGoat Legacy version which is essentially the WebGoat 5 with a new UI. 
+WebGoat Legacy is a demonstration of common server-side application flaws. It is designed to teach application penetration testing techniques through hands-on exercises. This version is based on WebGoat 5 with a new user interface.
 
-This program is a demonstration of common server-side application flaws. The
-exercises are intended to be used by people to learn about application
-penetration testing techniques.
+**WARNING:** This program is for educational purposes only. Running it will make your machine vulnerable to attacks. Disconnect from the Internet while using it.
 
-* [Home Page](http://webgoat.github.io)
-* [OWASP Project Home Page](http://www.owasp.org/index.php/Category:OWASP_WebGoat_Project)
-* [Source Code](https://github.com/WebGoat/WebGoat-Legacy)
-* [Easy-Run Download](https://webgoat.atlassian.net/builds/browse/WEB-WGM/latestSuccessful/artifact/JOB1/WebGoat-Embedded-Tomcat/WebGoat-6.0-SNAPSHOT-war-exec.jar  )      
-* [Wiki](https://github.com/WebGoat/WebGoat-Legacy/wiki)
-* [FAQ (old info):](http://code.google.com/p/webgoat/wiki/FAQ)
-* [Contact Info - Direct to Bruce Mayhew](webgoat@owasp.org)
-* [Mailing List - WebGoat Community - For most questions](owasp-webgoat@lists.owasp.org) 
+## Features
 
-**WARNING 1:** *While running this program your machine will be extremely
-vulnerable to attack. You should to disconnect from the Internet while using
-this program.*
+- Hands-on exercises to learn about application security vulnerabilities.
+- Demonstrates common server-side application flaws.
+- Includes a modernized user interface.
+- Supports easy and standard run modes for both non-developers and developers.
 
-**WARNING 2:** *This program is for educational purposes only. If you attempt
-these techniques without authorization, you are very likely to get caught. If
-you are caught engaging in unauthorized hacking, most companies will fire you.
-Claiming that you were doing security research will not work as that is the
-first thing that all hackers claim.*
+## Prerequisites
 
-You can find more information about WebGoat at:
-(https://github.com/WebGoat/)
+- **Java VM**: Version >= 1.6 (JDK 1.7 recommended).
+- **Maven**: Version > 2.0.9 (for developers).
+- **IDE**: NetBeans, IntelliJ, or Eclipse with Maven support (for developers).
+- **Git**: Required for source code management.
 
+## Easy Run Instructions (For Non-Developers)
 
-# Easy Run Instructions ( For non-developers )
+1. Download the executable jar file:
+   [WebGoat-6.0.1-war-exec.jar](https://webgoat.atlassian.net/builds/browse/WEB-WGM/latestSuccessful/artifact/shared/WebGoat-Embedded-Tomcat/WebGoat-6.0.1-war-exec.jar)
+2. Run it using Java:
+   ```
+   java -jar WebGoat-6.0-exec-war.jar
+   ```
+3. Open your browser and navigate to:
+   [http://localhost:8080/WebGoat](http://localhost:8080/WebGoat)
+4. To change the port or other options, use:
+   ```
+   java -jar WebGoat-6.0-exec-war.jar --help
+   ```
 
-Follow these instructions if you simply wish to run WebGoat
+## Standard Run Instructions (For Developers)
 
-**Prerequisites:** 
+1. Clone the repository:
+   ```
+   git clone https://github.com/WebGoat/WebGoat-Legacy.git
+   ```
+2. Build the project using Maven:
+   ```
+   cd webgoat
+   mvn clean package
+   ```
+3. Run the project in an embedded Tomcat server:
+   ```
+   mvn tomcat:run-war
+   ```
+4. Alternatively, run the executable jar file:
+   ```
+   cd target
+   java -jar WebGoat-6.0-exec-war.jar
+   ```
 
-Java VM >= 1.6 installed ( JDK 1.7 recommended)
+## Contributing
 
-1. Download the executable jar file to any location of your choice:
+Contributions are welcome! Please follow these steps:
 
-    (https://webgoat.atlassian.net/builds/browse/WEB-WGM/latestSuccessful/artifact/shared/WebGoat-Embedded-Tomcat/WebGoat-6.0.1-war-exec.jar)
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Commit your changes and push them to your fork.
+4. Submit a pull request with a detailed description of your changes.
 
-2. Run it using java:
+## License
 
-    > java -jar WebGoat-6.0-exec-war.jar
+This project is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
-3. Then navigate in your browser to: (http://localhost:8080/WebGoat)
+## Support
 
-4. If you would like to change the port or other options, use:
+For questions or support, please use the following resources:
 
-    > java -jar WebGoat-6.0-exec-war.jar --help
+- [WebGoat Wiki](https://github.com/WebGoat/WebGoat-Legacy/wiki)
+- [Mailing List](mailto:owasp-webgoat@lists.owasp.org)
+- [Contact Bruce Mayhew](mailto:webgoat@owasp.org)
 
+## Additional Resources
 
-# Standard Run Instructions (For Developers)
+- [Home Page](http://webgoat.github.io)
+- [OWASP Project Home Page](http://www.owasp.org/index.php/Category:OWASP_WebGoat_Project)
+- [FAQ](http://code.google.com/p/webgoat/wiki/FAQ)
 
-Follow These instructions if you wish to run Webgoat and modify the source code
-as well.
-
-**Prerequisites:**
-
-* Java >= 1.6 ( JDK 1.7 recommended )
-* Maven > 2.0.9
-* Your favorite IDE, with Maven awareness: Netbeans/IntelliJ/Eclipse with m2e
-  installed. If you are setting up an IDE, Netbeans 8.0 contains the Maven and
-  Git support you need: (https://netbeans.org/downloads/)
-* Git, or Git support in your IDE
-        
-**Note:** WebGoat source code can be downloaded at: (https://github.com/WebGoat/WebGoat-Legacy). 
-	
-
-1. Building the project (Developers) using a command shell/window:
-
-    > cd webgoat
-    > mvn clean package
-
-2. After opening the project in Netbeans or Eclipse, you can easily run the
-project using maven:
-
-    > mvn tomcat:run-war
-
-3. Maven will run the project in an embedded tomcat. The package phase also builds an executable jar file. You can run it using:
-
-    > cd target
-    > java -jar WebGoat-6.0-exec-war.jar http://localhost:8080/WebGoat
+Thank you for using WebGoat Legacy!

@@ -27,7 +27,6 @@
  */
 package org.owasp.webgoat.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,12 +39,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class DummyService extends BaseService{
 
+    /**
+     * Retrieves a list of first names.
+     *
+     * @return a list of strings containing first names
+     */
     @RequestMapping(value = "/first.mvc", produces = "application/json")
-    public @ResponseBody
-    List<String> firstNames() {
-        List<String> test = new ArrayList<String>();
-        test.add("one");
-        test.add("two)");
-        return test;
+    public @ResponseBody List<String> firstNames() {
+        return List.of("one", "two");
     }
 }

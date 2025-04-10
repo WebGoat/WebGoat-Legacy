@@ -2,10 +2,11 @@ package org.owasp.webgoat;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,7 +16,6 @@ import javax.servlet.http.HttpSession;
 import org.owasp.webgoat.lessons.AbstractLesson;
 import org.owasp.webgoat.lessons.WelcomeScreen;
 import org.owasp.webgoat.lessons.admin.WelcomeAdminScreen;
-import org.owasp.webgoat.session.Course;
 import org.owasp.webgoat.session.ErrorScreen;
 import org.owasp.webgoat.session.Screen;
 import org.owasp.webgoat.session.UserTracker;
@@ -64,17 +64,16 @@ public class HammerHead extends HttpServlet {
 
     final Logger logger = LoggerFactory.getLogger(HammerHead.class);
 
-    private static final String WELCOMED = "welcomed";
-
     /**
      *
      */
     private static final long serialVersionUID = 645640331343188020L;
 
     /**
-     * Description of the Field
+     * Replacing SimpleDateFormat with DateTimeFormatter for thread safety and modern API usage.
      */
-    protected static SimpleDateFormat httpDateFormat;
+    protected static final DateTimeFormatter HTTP_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).withZone(ZoneId.of("GMT"));
 
     /**
      * Set the session timeout to be 2 days
@@ -215,15 +214,13 @@ public class HammerHead extends HttpServlet {
     }
 
     /**
-     * Description of the Method
+     * Updated formatHttpDate to use DateTimeFormatter.
      *
      * @param date Description of the Parameter
      * @return RFC 1123 http date format
      */
     protected static String formatHttpDate(Date date) {
-        synchronized (httpDateFormat) {
-            return httpDateFormat.format(date);
-        }
+        return HTTP_DATE_FORMAT.format(ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("GMT")));
     }
 
     /**
@@ -244,8 +241,6 @@ public class HammerHead extends HttpServlet {
     @Override
     public void init() throws ServletException {
         logger.info("Initializing main webgoat servlet");
-        httpDateFormat = new SimpleDateFormat("EEE, dd MMM yyyyy HH:mm:ss z", Locale.US);
-        httpDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         propertiesPath = getServletContext().getRealPath("/WEB-INF/webgoat.properties");
         webgoatContext = new WebgoatContext(this);
     }
@@ -268,81 +263,30 @@ public class HammerHead extends HttpServlet {
      * ArrayList(course.getLessons(category, role)); return course.getLessons(category, role); }
      */
     /**
-     * Description of the Method
+     * Refactored makeScreen method to use switch expressions for cleaner logic.
      *
      * @param s Description of the Parameter
      * @return Description of the Return Value
      */
     protected Screen makeScreen(WebSession s) {
-        Screen screen = null;
-        int scr = s.getCurrentScreen();
-        Course course = s.getCourse();
-
-        if (s.isUser() || s.isChallenge()) {
-            if (scr == WebSession.WELCOME) {
-                screen = new WelcomeScreen(s);
-            } else {
-                AbstractLesson lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
+        return switch (s.getCurrentScreen()) {
+            case WebSession.WELCOME -> s.isAdmin() ? new WelcomeAdminScreen(s) : new WelcomeScreen(s);
+            default -> {
+                AbstractLesson lesson = s.getCourse().getLesson(s, s.getCurrentScreen(),
+                        s.isAdmin() ? AbstractLesson.ADMIN_ROLE : AbstractLesson.USER_ROLE);
                 if (lesson == null && s.isHackedAdmin()) {
-                    // If admin was hacked, let the user see some of the
-                    // admin screens
-                    lesson = course.getLesson(s, scr, AbstractLesson.HACKED_ADMIN_ROLE);
+                    lesson = s.getCourse().getLesson(s, s.getCurrentScreen(), AbstractLesson.HACKED_ADMIN_ROLE);
                 }
-
                 if (lesson != null) {
-                    screen = lesson;
-
-                    // We need to do some bookkeeping for the hackable admin
-                    // interface.
-                    // This is the only place we can tell if the user
-                    // successfully hacked the hackable
-                    // admin and has actually accessed an admin screen. You
-                    // need BOTH pieces of information
-                    // in order to satisfy the remote admin lesson.
-                    s.setHasHackableAdmin(screen.getRole());
-
+                    s.setHasHackableAdmin(lesson.getRole());
                     lesson.handleRequest(s);
                     s.setCurrentMenu(lesson.getCategory().getRanking());
+                    yield lesson;
                 } else {
-                    screen = new ErrorScreen(s, "Invalid screen requested.  Try: http://localhost/WebGoat/attack");
+                    yield new ErrorScreen(s, "Invalid screen requested. Try: http://localhost/WebGoat/attack");
                 }
             }
-        } else if (s.isAdmin()) {
-            if (scr == WebSession.WELCOME) {
-                screen = new WelcomeAdminScreen(s);
-            } else {
-                // Admin can see all roles.
-                // FIXME: should be able to pass a list of roles.
-                AbstractLesson lesson = course.getLesson(s, scr, AbstractLesson.ADMIN_ROLE);
-                if (lesson == null) {
-                    lesson = course.getLesson(s, scr, AbstractLesson.HACKED_ADMIN_ROLE);
-                }
-                if (lesson == null) {
-                    lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
-                }
-
-                if (lesson != null) {
-                    screen = lesson;
-
-                    // We need to do some bookkeeping for the hackable admin
-                    // interface.
-                    // This is the only place we can tell if the user
-                    // successfully hacked the hackable
-                    // admin and has actually accessed an admin screen. You
-                    // need BOTH pieces of information
-                    // in order to satisfy the remote admin lesson.
-                    s.setHasHackableAdmin(screen.getRole());
-
-                    lesson.handleRequest(s);
-                    s.setCurrentMenu(lesson.getCategory().getRanking());
-                } else {
-                    screen = new ErrorScreen(s,
-                            "Invalid screen requested.  Try Setting Admin to false or Try: http://localhost/WebGoat/attack");
-                }
-            }
-        }
-
-        return (screen);
+        };
     }
 
     /**

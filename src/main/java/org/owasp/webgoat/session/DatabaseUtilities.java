@@ -1,4 +1,3 @@
-
 package org.owasp.webgoat.session;
 
 import java.io.IOException;
@@ -14,7 +13,6 @@ import org.apache.ecs.html.B;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
-
 
 /***************************************************************************************************
  * 
@@ -45,129 +43,98 @@ import org.apache.ecs.html.Table;
  * 
  * @author Jeff Williams <a href="http://www.aspectsecurity.com">Aspect Security</a>
  */
-public class DatabaseUtilities
-{
+public class DatabaseUtilities {
 
-	private static Map<String, Connection> connections = new HashMap<String, Connection>();
-	private static Map<String, Boolean> dbBuilt = new HashMap<String, Boolean>();
+    private static Map<String, Connection> connections = new HashMap<>();
+    private static Map<String, Boolean> dbBuilt = new HashMap<>();
 
-	public static Connection getConnection(WebSession s) throws SQLException
-	{
-		return getConnection(s.getUserName(), s.getWebgoatContext());
-	}
+    public static Connection getConnection(WebSession s) throws SQLException {
+        return getConnection(s.getUserName(), s.getWebgoatContext());
+    }
 
-	public static synchronized Connection getConnection(String user, WebgoatContext context) throws SQLException
-	{
-		Connection conn = connections.get(user);
-		if (conn != null && !conn.isClosed()) return conn;
-		conn = makeConnection(user, context);
-		connections.put(user, conn);
+    public static synchronized Connection getConnection(String user, WebgoatContext context) throws SQLException {
+        Connection conn = connections.get(user);
+        if (conn != null && !conn.isClosed()) {
+            return conn;
+        }
+        conn = makeConnection(user, context);
+        connections.put(user, conn);
 
-		if (dbBuilt.get(user) == null)
-		{
-			new CreateDB().makeDB(conn);
-			dbBuilt.put(user, Boolean.TRUE);
-		}
+        if (dbBuilt.get(user) == null) {
+            new CreateDB().makeDB(conn);
+            dbBuilt.put(user, Boolean.TRUE);
+        }
 
-		return conn;
-	}
+        return conn;
+    }
 
-	public static synchronized void returnConnection(String user)
-	{
-		try
-		{
-			Connection connection = connections.get(user);
-			if (connection == null || connection.isClosed()) return;
+    public static synchronized void returnConnection(String user) {
+        try {
+            Connection connection = connections.get(user);
+            if (connection == null || connection.isClosed()) return;
 
-			if (connection.getMetaData().getDatabaseProductName().toLowerCase().contains("oracle")) connection.close();
-		} catch (SQLException sqle)
-		{
-			sqle.printStackTrace();
-		}
-	}
+            if (connection.getMetaData().getDatabaseProductName().toLowerCase().contains("oracle")) {
+                connection.close();
+            }
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
+        }
+    }
 
-	private static Connection makeConnection(String user, WebgoatContext context) throws SQLException
-	{
-		try
-	{
-		Class.forName(context.getDatabaseDriver());
+    private static Connection makeConnection(String user, WebgoatContext context) throws SQLException {
+        try {
+            Class.forName(context.getDatabaseDriver());
 
-		if (context.getDatabaseConnectionString().contains("hsqldb")) return getHsqldbConnection(user, context);
+            if (context.getDatabaseConnectionString().contains("hsqldb")) {
+                return getHsqldbConnection(user, context);
+            }
 
-		String userPrefix = context.getDatabaseUser();
-		String password = context.getDatabasePassword();
-		String url = context.getDatabaseConnectionString();
-		return DriverManager.getConnection(url, userPrefix + "_" + user, password);
-		} catch (ClassNotFoundException cnfe)
-		{
-			cnfe.printStackTrace();
-			throw new SQLException("Couldn't load the database driver: " + cnfe.getLocalizedMessage());
-		}
-	}
+            String userPrefix = context.getDatabaseUser();
+            String password = context.getDatabasePassword();
+            String url = context.getDatabaseConnectionString();
+            return DriverManager.getConnection(url, userPrefix + "_" + user, password);
+        } catch (ClassNotFoundException cnfe) {
+            cnfe.printStackTrace();
+            throw new SQLException("Couldn't load the database driver: " + cnfe.getLocalizedMessage());
+        }
+    }
 
-	private static Connection getHsqldbConnection(String user, WebgoatContext context) throws ClassNotFoundException,
-			SQLException
-	{
-		String url = context.getDatabaseConnectionString().replaceAll("\\$\\{USER\\}", user);
-		return DriverManager.getConnection(url, "sa", "");
-	}
+    private static Connection getHsqldbConnection(String user, WebgoatContext context) throws SQLException {
+        String url = context.getDatabaseConnectionString().replace("${USER}", user);
+        return DriverManager.getConnection(url, "sa", "");
+    }
 
-	/**
-	 * Description of the Method
-	 * 
-	 * @param results
-	 *            Description of the Parameter
-	 * @param resultsMetaData
-	 *            Description of the Parameter
-	 * 
-	 * @return Description of the Return Value
-	 * 
-	 * @exception IOException
-	 *                Description of the Exception
-	 * @exception SQLException
-	 *                Description of the Exception
-	 */
-	public static MultiPartElement writeTable(ResultSet results, ResultSetMetaData resultsMetaData) throws IOException,
-			SQLException
-	{
-		int numColumns = resultsMetaData.getColumnCount();
-		results.beforeFirst();
+    public static MultiPartElement writeTable(ResultSet results, ResultSetMetaData resultsMetaData) throws IOException, SQLException {
+        int numColumns = resultsMetaData.getColumnCount();
+        results.beforeFirst();
 
-		if (results.next())
-		{
-			Table t = new Table(1); // 1 = with border
-			t.setCellPadding(1);
+        if (results.next()) {
+            Table t = new Table(1); // 1 = with border
+            t.setCellPadding(1);
 
-			TR tr = new TR();
+            TR tr = new TR();
 
-			for (int i = 1; i < (numColumns + 1); i++)
-			{
-				tr.addElement(new TD(new B(resultsMetaData.getColumnName(i))));
-			}
+            for (int i = 1; i <= numColumns; i++) {
+                tr.addElement(new TD(new B(resultsMetaData.getColumnName(i))));
+            }
 
-			t.addElement(tr);
-			results.beforeFirst();
+            t.addElement(tr);
+            results.beforeFirst();
 
-			while (results.next())
-			{
-				TR row = new TR();
+            while (results.next()) {
+                TR row = new TR();
 
-				for (int i = 1; i < (numColumns + 1); i++)
-				{
-					String str = results.getString(i);
-					if (str == null) str = "";
-					row.addElement(new TD(str.replaceAll(" ", "&nbsp;")));
-				}
+                for (int i = 1; i <= numColumns; i++) {
+                    String str = results.getString(i);
+                    row.addElement(new TD((str == null ? "" : str).replace(" ", "&nbsp;")));
+                }
 
-				t.addElement(row);
-			}
+                t.addElement(row);
+            }
 
-			return (t);
-		}
-		else
-		{
-			return (new B("Query Successful; however no data was returned from this query."));
-		}
-	}
-
+            return t;
+        } else {
+            return new B("Query Successful; however no data was returned from this query.");
+        }
+    }
 }

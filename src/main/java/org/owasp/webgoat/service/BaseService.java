@@ -67,22 +67,20 @@ public abstract class BaseService {
     }
 
     public WebSession getWebSession(HttpSession session) {
-        WebSession ws;
-        Object o = session.getAttribute(WebSession.SESSION);
+        var o = session.getAttribute(WebSession.SESSION);
         if (o == null) {
-            throw new IllegalArgumentException("No valid WebSession object found, has session timed out? [" + session.getId() + "]");
+            throw new IllegalArgumentException(String.format("No valid WebSession object found, has session timed out? [%s]", session.getId()));
         }
-        if (!(o instanceof WebSession)) {
-            throw new IllegalArgumentException("Invalid WebSession object found, this is probably a bug! [" + o.getClass() + " | " + session.getId() + "]");
+        if (!(o instanceof WebSession ws)) {
+            throw new IllegalArgumentException(String.format("Invalid WebSession object found, this is probably a bug! [%s | %s]", o.getClass(), session.getId()));
         }
-        ws = (WebSession) o;
         return ws;
     }
 
-    public String getStringStackTrace(Throwable t){
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        t.printStackTrace(pw);
-        return sw.toString();
+    public String getStringStackTrace(Throwable t) {
+        try (var sw = new StringWriter(); var pw = new PrintWriter(sw)) {
+            t.printStackTrace(pw);
+            return sw.toString();
+        }
     }
 }

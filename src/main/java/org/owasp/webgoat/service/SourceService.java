@@ -48,49 +48,35 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class SourceService extends BaseService {
 
     /**
-     * Returns source for current attack
+     * Retrieves the source code for the current attack.
      *
-     * @param session
-     * @return
+     * @param session the HTTP session object
+     * @return the source code as a string, or a message indicating no source is available
      */
     @RequestMapping(value = "/source.mvc", produces = "application/text")
-    public @ResponseBody
-    String showSource(HttpSession session) {
-        WebSession ws = getWebSession(session);
-        String source = getSource(ws);
-        if (source == null) {
-            source = "No source listing found";
-        }
-        return source;
-        //SourceListing sl = new SourceListing();
-        //sl.setSource(source);
-        //return sl;
+    public @ResponseBody String showSource(HttpSession session) {
+        var ws = getWebSession(session);
+        var source = getSource(ws);
+        return source != null ? source : "No source listing found";
     }
 
     /**
-     * Description of the Method
+     * Retrieves the raw source code for the current lesson.
      *
-     * @param s Description of the Parameter
-     * @return Description of the Return Value
+     * @param s the current web session
+     * @return the raw source code with omitted sections replaced, or a message indicating no source is available
      */
     protected String getSource(WebSession s) {
-
-        String source = null;
-        int scr = s.getCurrentScreen();
-        Course course = s.getCourse();
+        var scr = s.getCurrentScreen();
+        var course = s.getCourse();
 
         if (s.isUser() || s.isChallenge()) {
-
-            AbstractLesson lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
-
+            var lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
             if (lesson != null) {
-                source = lesson.getRawSource(s);
+                return lesson.getRawSource(s).replaceAll("(?s)" + START_SOURCE_SKIP + ".*" + END_SOURCE_SKIP,
+                        "Code Section Deliberately Omitted");
             }
         }
-        if (source == null) {
-            return "Source code is not available for this lesson.";
-        }
-        return (source.replaceAll("(?s)" + START_SOURCE_SKIP + ".*" + END_SOURCE_SKIP,
-                "Code Section Deliberately Omitted"));
+        return "Source code is not available for this lesson.";
     }
 }

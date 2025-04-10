@@ -50,10 +50,8 @@ public class ApplicationService extends BaseService {
      * @return
      */
     @RequestMapping(value = "/application.mvc", produces = "application/json")
-    public @ResponseBody
-    Application showApplication(HttpSession session) {
-        Application app = Application.getInstance();
-        return app;
+    public @ResponseBody Application showApplication(HttpSession session) {
+        return Application.getInstance();
     }
 
 }

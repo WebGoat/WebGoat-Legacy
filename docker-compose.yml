@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  webgoat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Map port 8080 of the container to port 8080 on the host
+    volumes:
+      - ./src/main/resources:/usr/local/tomcat/resources # Example volume mapping
+    environment:
+      - JAVA_OPTS=-Xms512m -Xmx1024m # Example Java options
+
+  database:
+    image: mysql:8.0
+    container_name: webgoat-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: webgoat
+      MYSQL_USER: webgoat
+      MYSQL_PASSWORD: webgoatpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
