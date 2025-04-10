@@ -216,4 +216,16 @@ var app = function() {
 $(document).ready(function() {
     app.init();
 
+    document.getElementById('toggle-left').addEventListener('click', function () {
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content-wrapper');
+        sidebar.classList.toggle('sidebar-toggle');
+        mainContent.classList.toggle('main-content-toggle-left');
+    });
+
+    document.getElementById('menu-toggle').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            this.click();
+        }
+    });
 });
