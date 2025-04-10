@@ -41,18 +41,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class RestartLessonService extends BaseService {
 
     /**
-     * Returns current lesson
+     * Restarts the current lesson.
      *
-     * @param session
-     * @return
+     * @param session the HTTP session object
+     * @return the link to the current lesson
      */
     @RequestMapping(value = "/restartlesson.mvc", produces = "text/text")
-    public @ResponseBody
-    String restartLesson(HttpSession session) {
-        WebSession ws = getWebSession(session);
-        int currentScreen = ws.getCurrentScreen();
-        if(currentScreen > 0){
-            ws.restartLesson(currentScreen);
+    public @ResponseBody String restartLesson(HttpSession session) {
+        var ws = getWebSession(session);
+        if (ws.getCurrentScreen() > 0) {
+            ws.restartLesson(ws.getCurrentScreen());
         }
         return ws.getCurrentLesson().getLink();
     }

@@ -1,15 +1,12 @@
-
 package org.owasp.webgoat;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.owasp.webgoat.lessons.AbstractLesson;
 import org.owasp.webgoat.session.Course;
 import org.owasp.webgoat.session.WebSession;
-
 
 /***************************************************************************************************
  * 
@@ -72,17 +69,11 @@ public class Catcher extends HammerHead
 	 * @exception ServletException
 	 *                Description of the Exception
 	 */
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
-	{
-		try
-		{
-			// System.out.println( "Entering doPost: " );
-			// System.out.println( " - request " + request);
-			// System.out.println( " - principle: " + request.getUserPrincipal() );
-			// setCacheHeaders(response, 0);
+	@Override
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		try {
 			WebSession session = (WebSession) request.getSession(true).getAttribute(WebSession.SESSION);
-			session.update(request, response, this.getServletName()); // FIXME: Too much in this
-			// call.
+			session.update(request, response, this.getServletName());
 
 			int scr = session.getCurrentScreen();
 			Course course = session.getCourse();
@@ -90,28 +81,23 @@ public class Catcher extends HammerHead
 
 			log(request, lesson.getClass().getName() + " | " + session.getParser().toString());
 
-			String property = new String(session.getParser().getStringParameter(PROPERTY, EMPTY_STRING));
+			String property = session.getParser().getStringParameter(PROPERTY, EMPTY_STRING);
 
-			// if the PROPERTY parameter is available - write all the parameters to the
-			// property file. No other control parameters are supported at this time.
-			if (!property.equals(EMPTY_STRING))
-			{
-				Enumeration e = session.getParser().getParameterNames();
-
-				while (e.hasMoreElements())
-				{
-					String name = (String) e.nextElement();
-					String value = session.getParser().getParameterValues(name)[0];
+			if (!property.isEmpty()) {
+				var parameterNames = session.getParser().getParameterNames();
+				while (parameterNames.hasMoreElements()) {
+					var name = (String) parameterNames.nextElement();
+					var value = session.getParser().getParameterValues(name)[0];
 					lesson.getLessonTracker(session).getLessonProperties().setProperty(name, value);
 				}
 			}
 			lesson.getLessonTracker(session).store(session, lesson);
 
-			// BDM MC
-			if ( request.getParameter("Deleter") != null ){org.owasp.webgoat.lessons.BlindScript.StaticDeleter();}
+			if (request.getParameter("Deleter") != null) {
+				org.owasp.webgoat.lessons.BlindScript.StaticDeleter();
+			}
 
-		} catch (Throwable t)
-		{
+		} catch (Throwable t) {
 			t.printStackTrace();
 			log("ERROR: " + t);
 		}

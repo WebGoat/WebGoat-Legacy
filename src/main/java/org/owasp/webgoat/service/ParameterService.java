@@ -51,16 +51,15 @@ public class ParameterService extends BaseService {
     final Logger logger = LoggerFactory.getLogger(ParameterService.class);
 
     /**
-     * Returns request parameters for last attack
+     * Retrieves the request parameters for the last attack.
      *
-     * @param session
-     * @return
+     * @param session the HTTP session object
+     * @return a sorted list of request parameters
      */
     @RequestMapping(value = "/parameter.mvc", produces = "application/json")
-    public @ResponseBody
-    List<RequestParameter> showParameters(HttpSession session) {
-        WebSession ws = getWebSession(session);
-        List<RequestParameter> listParms = ws.getParmsOnLastRequest();
+    public @ResponseBody List<RequestParameter> showParameters(HttpSession session) {
+        var ws = getWebSession(session);
+        var listParms = ws.getParmsOnLastRequest();
         Collections.sort(listParms);
         return listParms;
     }

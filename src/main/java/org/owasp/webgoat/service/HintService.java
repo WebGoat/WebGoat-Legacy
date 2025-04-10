@@ -31,33 +31,25 @@ public class HintService extends BaseService {
      * @return
      */
     @RequestMapping(value = "/hint.mvc", produces = "application/json")
-    public @ResponseBody
-    List<Hint> showHint(HttpSession session) {
-        List<Hint> listHints = new ArrayList<Hint>();
-        WebSession ws = getWebSession(session);
-        AbstractLesson l = ws.getCurrentLesson();
-        if (l == null) {
-            return listHints;
-        }
-        List<String> hints;
-        hints = l.getHintsPublic(ws);
-        if (hints == null) {
-            return listHints;
-        }
-        int maxHintViewed = l.getLessonTracker(ws).getMaxHintLevel();
-        System.out.println("maxHintViewed: " + maxHintViewed);
-        int idx = 0;
+    public @ResponseBody List<Hint> showHint(HttpSession session) {
+        var listHints = new ArrayList<Hint>();
+        var ws = getWebSession(session);
+        var lesson = ws.getCurrentLesson();
+        if (lesson == null) return listHints;
 
-        for (String h : hints) {
-            Hint hint = new Hint();
-            hint.setHint(h);
-            hint.setLesson(l.getName());
+        var hints = lesson.getHintsPublic(ws);
+        if (hints == null) return listHints;
+
+        int maxHintViewed = lesson.getLessonTracker(ws).getMaxHintLevel();
+        System.out.println("maxHintViewed: " + maxHintViewed);
+
+        for (int idx = 0; idx < hints.size(); idx++) {
+            var hint = new Hint();
+            hint.setHint(hints.get(idx));
+            hint.setLesson(lesson.getName());
             hint.setNumber(idx);
-            if (idx <= maxHintViewed) {
-                hint.setViewed(true);
-            }
+            hint.setViewed(idx <= maxHintViewed);
             listHints.add(hint);
-            idx++;
         }
         return listHints;
     }

@@ -40,6 +40,7 @@ import org.owasp.webgoat.lessons.model.LessonMenuItem;
 import org.owasp.webgoat.lessons.model.LessonMenuItemType;
 import org.owasp.webgoat.session.Course;
 import org.owasp.webgoat.session.WebSession;
+import org.owasp.webgoat.util.InputSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -56,71 +57,74 @@ public class LessonMenuService extends BaseService {
     private static final Logger logger = LoggerFactory.getLogger(LessonMenuService.class);
 
     /**
-     * Returns the lesson menu which is used to build the left nav
+     * Retrieves the lesson menu used to build the left navigation.
      *
-     * @param session
-     * @return
+     * @param session the HTTP session object
+     * @return a list of lesson menu items
      */
     @RequestMapping(value = "/lessonmenu.mvc", produces = "application/json")
-    public @ResponseBody
-    List<LessonMenuItem> showLeftNav(HttpSession session) {
-        List<LessonMenuItem> menu = new ArrayList<LessonMenuItem>();
-        WebSession ws = getWebSession(session);
-        // Get the categories, these are the main menu items
-        Course course = ws.getCourse();
-        List<Category> categories = course.getCategories();
+    public @ResponseBody List<LessonMenuItem> showLeftNav(HttpSession session) {
+        var menu = new ArrayList<LessonMenuItem>();
+        var ws = getWebSession(session);
 
-        for (Category category : categories) {
-            LessonMenuItem categoryItem = new LessonMenuItem();
-            categoryItem.setName(category.getName());
+        // Validate session object
+        if (ws == null) {
+            logger.warn("Invalid session: WebSession is null");
+            return menu; // Return an empty menu if session is invalid
+        }
+
+        var course = ws.getCourse();
+        if (course == null) {
+            logger.warn("Invalid session: Course is null");
+            return menu;
+        }
+
+        var categories = course.getCategories();
+        for (var category : categories) {
+            // Sanitize category name
+            var sanitizedCategoryName = InputSanitizer.sanitize(category.getName());
+
+            var categoryItem = new LessonMenuItem();
+            categoryItem.setName(sanitizedCategoryName);
             categoryItem.setType(LessonMenuItemType.CATEGORY);
-            // check for any lessons for this category
-            List<AbstractLesson> lessons = ws.getLessons(category);
-            String role = ws.getRole();
-            logger.info("Role: " + role);
-            for (AbstractLesson lesson : lessons) {
-                LessonMenuItem lessonItem = new LessonMenuItem();
-                lessonItem.setName(lesson.getTitle());
-                lessonItem.setLink(lesson.getLink());
-                lessonItem.setType(LessonMenuItemType.LESSON);
-                if (lesson.isCompleted(ws)) {
-                    lessonItem.setComplete(true);
-                }
-                /* @TODO - do this in a more efficient way 
-                 if (lesson.isAuthorized(ws, role, WebSession.SHOWHINTS)) {
-                 lessonItem.setShowHints(true);
-                 }
 
-                 if (lesson.isAuthorized(ws, role, WebSession.SHOWSOURCE)) {
-                 lessonItem.setShowSource(true);
-                 }
-                 */
-                // special handling for challenge role
+            var lessons = ws.getLessons(category);
+            var role = ws.getRole();
+
+            // Avoid logging sensitive information
+            logger.debug("Processing role for category: " + sanitizedCategoryName);
+
+            for (var lesson : lessons) {
+                // Authorization check
+                if (!lesson.isAuthorized(ws, role)) {
+                    logger.warn("Unauthorized access attempt to lesson: " + lesson.getTitle());
+                    continue;
+                }
+
+                var lessonItem = new LessonMenuItem();
+                lessonItem.setName(InputSanitizer.sanitize(lesson.getTitle()));
+                lessonItem.setLink(InputSanitizer.sanitize(lesson.getLink()));
+                lessonItem.setType(LessonMenuItemType.LESSON);
+                lessonItem.setComplete(lesson.isCompleted(ws));
+
                 if (Category.CHALLENGE.equals(lesson.getCategory())) {
                     lessonItem.setShowHints(lesson.isAuthorized(ws, AbstractLesson.CHALLENGE_ROLE, WebSession.SHOWHINTS));
                     lessonItem.setShowSource(lesson.isAuthorized(ws, AbstractLesson.CHALLENGE_ROLE, WebSession.SHOWHINTS));
                 }
 
                 categoryItem.addChild(lessonItem);
-                // Does the lesson have stages
-                if (lesson instanceof RandomLessonAdapter) {
-                    RandomLessonAdapter rla = (RandomLessonAdapter) lesson;
-                    String[] stages = rla.getStages();
+
+                if (lesson instanceof RandomLessonAdapter rla) {
+                    var stages = rla.getStages();
                     if (stages != null) {
-                        String lessonLink = lesson.getLink();
-                        int stageIdx = 1;
-                        for (String stage : stages) {
-                            LessonMenuItem stageItem = new LessonMenuItem();
-                            stageItem.setName("Stage " + stageIdx + ": " + stage);
-                            // build the link for the stage
-                            String stageLink = lessonLink + "&stage=" + stageIdx;
-                            stageItem.setLink(stageLink);
+                        var lessonLink = lesson.getLink();
+                        for (int stageIdx = 1; stageIdx <= stages.length; stageIdx++) {
+                            var stageItem = new LessonMenuItem();
+                            stageItem.setName("Stage " + stageIdx + ": " + InputSanitizer.sanitize(stages[stageIdx - 1]));
+                            stageItem.setLink(lessonLink + "&stage=" + stageIdx);
                             stageItem.setType(LessonMenuItemType.STAGE);
-                            if (rla.isStageComplete(ws, stage)) {
-                                stageItem.setComplete(true);
-                            }
+                            stageItem.setComplete(rla.isStageComplete(ws, stages[stageIdx - 1]));
                             lessonItem.addChild(stageItem);
-                            stageIdx++;
                         }
                     }
                 }
@@ -128,6 +132,5 @@ public class LessonMenuService extends BaseService {
             menu.add(categoryItem);
         }
         return menu;
-
     }
 }

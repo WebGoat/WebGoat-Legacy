@@ -49,45 +49,33 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class LessonPlanService extends BaseService {
 
     /**
-     * Returns source for current attack
+     * Retrieves the lesson plan for the current attack.
      *
-     * @param session
-     * @return
+     * @param session the HTTP session object
+     * @return the lesson plan as a string
      */
     @RequestMapping(value = "/lessonplan.mvc", produces = "application/html")
-    public @ResponseBody
-    String showPlan(HttpSession session) {
-        WebSession ws = getWebSession(session);
-        String plan = getPlan(ws);
-        return plan;
-        //SourceListing sl = new SourceListing();
-        //sl.setSource(source);
-        //return sl;
+    public @ResponseBody String showPlan(HttpSession session) {
+        var ws = getWebSession(session);
+        return getPlan(ws);
     }
 
     /**
-     * Description of the Method
+     * Retrieves the lesson plan for the current lesson.
      *
-     * @param s Description of the Parameter
-     * @return Description of the Return Value
+     * @param s the current web session
+     * @return the lesson plan as a string, or a message indicating no plan is available
      */
     protected String getPlan(WebSession s) {
-
-        String plan = null;
-        int scr = s.getCurrentScreen();
-        Course course = s.getCourse();
+        var scr = s.getCurrentScreen();
+        var course = s.getCourse();
 
         if (s.isUser() || s.isChallenge()) {
-
-            AbstractLesson lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
-
+            var lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
             if (lesson != null) {
-                plan = lesson.getLessonPlan(s);
+                return lesson.getLessonPlan(s);
             }
         }
-        if (plan == null) {
-            plan = "Plan is not available for this lesson.";
-        }
-        return plan;
+        return "Plan is not available for this lesson.";
     }
 }

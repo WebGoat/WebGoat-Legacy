@@ -10,10 +10,8 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.List;
 import org.apache.ecs.Element;
 import org.apache.ecs.ElementContainer;
 import org.apache.ecs.StringElement;
@@ -22,7 +20,6 @@ import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Head;
 import org.apache.ecs.html.Html;
 import org.apache.ecs.html.IMG;
-import org.apache.ecs.html.PRE;
 import org.apache.ecs.html.Title;
 import org.owasp.webgoat.session.ParameterNotFoundException;
 import org.owasp.webgoat.session.Screen;
@@ -105,13 +102,13 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
 
     private String sourceFileName;
 
-    private Map<String, String> lessonPlanFileName = new HashMap<String, String>();
+    private Map<String, String> lessonPlanFileName = Map.of();
 
     private String lessonSolutionFileName;
 
     private WebgoatContext webgoatContext;
 
-    private LinkedList<String> availableLanguages = new LinkedList<String>();
+    private List<String> availableLanguages = List.of();
 
     private String defaultLanguage = "en";
 
@@ -121,7 +118,7 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
      * Constructor for the Lesson object
      */
     public AbstractLesson() {
-        id = new Integer(++count);
+        id = Integer.valueOf(++count);
     }
 
     public String getName() {
@@ -140,12 +137,12 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
     public void update(WebgoatProperties properties) {
         String className = getClass().getName();
         className = className.substring(className.lastIndexOf(".") + 1);
-        setRanking(new Integer(properties.getIntProperty("lesson." + className + ".ranking", getDefaultRanking()
+        setRanking(Integer.valueOf(properties.getIntProperty("lesson." + className + ".ranking", getDefaultRanking()
                 .intValue())));
         String categoryRankingKey = "category." + getDefaultCategory().getName() + ".ranking";
         // System.out.println("Category ranking key: " + categoryRankingKey);
         Category tempCategory = Category.getCategory(getDefaultCategory().getName());
-        tempCategory.setRanking(new Integer(properties.getIntProperty(categoryRankingKey, getDefaultCategory()
+        tempCategory.setRanking(Integer.valueOf(properties.getIntProperty(categoryRankingKey, getDefaultCategory()
                 .getRanking().intValue())));
         category = tempCategory;
         setHidden(properties.getBooleanProperty("lesson." + className + ".hidden", getDefaultHidden()));
@@ -199,63 +196,6 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
     protected abstract Category getDefaultCategory();
 
     protected abstract boolean getDefaultHidden();
-
-    /**
-     * Gets the fileMethod attribute of the Lesson class
-     *
-     * @param reader Description of the Parameter
-     * @param methodName Description of the Parameter
-     * @param numbers Description of the Parameter
-     * @return The fileMethod value
-     */
-    public static String getFileMethod(BufferedReader reader, String methodName, boolean numbers) {
-        int count = 0;
-        StringBuffer sb = new StringBuffer();
-        boolean echo = false;
-        boolean startCount = false;
-        int parenCount = 0;
-
-        try {
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                if ((line.indexOf(methodName) != -1)
-                        && ((line.indexOf("public") != -1) || (line.indexOf("protected") != -1) || (line
-                        .indexOf("private") != -1))) {
-                    echo = true;
-                    startCount = true;
-                }
-
-                if (echo && startCount) {
-                    if (numbers) {
-                        sb.append(pad(++count) + "    ");
-                    }
-
-                    sb.append(line + "\n");
-                }
-
-                if (echo && (line.indexOf("{") != -1)) {
-                    parenCount++;
-                }
-
-                if (echo && (line.indexOf("}") != -1)) {
-                    parenCount--;
-
-                    if (parenCount == 0) {
-                        startCount = false;
-                        echo = false;
-                    }
-                }
-            }
-
-            reader.close();
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
-        }
-
-        return (sb.toString());
-    }
 
     /**
      * Reads text from a file into an ElementContainer. Each line in the file is
@@ -716,20 +656,6 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
     /**
      * Description of the Method
      *
-     * @param reader Description of the Parameter
-     * @param numbers Description of the Parameter
-     * @param methodName Description of the Parameter
-     * @return Description of the Return Value
-     */
-    public static Element readMethodFromFile(BufferedReader reader, String methodName, boolean numbers) {
-        PRE pre = new PRE().addElement(getFileMethod(reader, methodName, numbers));
-
-        return (pre);
-    }
-
-    /**
-     * Description of the Method
-     *
      * @param s Description of the Parameter
      */
     public void handleRequest(WebSession s) {
@@ -766,8 +692,8 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
     }
 
     public void setLessonPlanFileName(String lang, String lessonPlanFileName) {
-        this.lessonPlanFileName.put(lang, lessonPlanFileName);
-        this.availableLanguages.add(lang);
+        this.lessonPlanFileName = Map.of(lang, lessonPlanFileName);
+        this.availableLanguages = List.of(lang);
     }
 
     public List<String> getAvailableLanguages() {

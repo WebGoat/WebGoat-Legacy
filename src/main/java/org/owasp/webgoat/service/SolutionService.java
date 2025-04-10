@@ -46,37 +46,33 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class SolutionService extends BaseService {
 
     /**
-     * Returns solution for current attack
+     * Retrieves the solution for the current attack.
      *
-     * @param session
-     * @return
+     * @param session the HTTP session object
+     * @return the solution as a string
      */
     @RequestMapping(value = "/solution.mvc", produces = "text/html")
-    public @ResponseBody
-    String showSolution(HttpSession session) {
-        WebSession ws = getWebSession(session);
-        String source = getSolution(ws);
-        return source;
+    public @ResponseBody String showSolution(HttpSession session) {
+        var ws = getWebSession(session);
+        return getSolution(ws);
     }
 
+    /**
+     * Retrieves the solution for the current lesson.
+     *
+     * @param s the current web session
+     * @return the solution as a string, or a message indicating no solution is available
+     */
     protected String getSolution(WebSession s) {
-
-        String source = null;
-        int scr = s.getCurrentScreen();
-        Course course = s.getCourse();
+        var scr = s.getCurrentScreen();
+        var course = s.getCourse();
 
         if (s.isUser() || s.isChallenge()) {
-
-            AbstractLesson lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
-
+            var lesson = course.getLesson(s, scr, AbstractLesson.USER_ROLE);
             if (lesson != null) {
-                source = lesson.getSolution(s);
+                return lesson.getSolution(s);
             }
         }
-        if (source == null) {
-            return "Solution  is not available. Contact "
-                    + s.getWebgoatContext().getFeedbackAddressHTML();
-        }
-        return (source);
+        return "Solution is not available. Contact " + s.getWebgoatContext().getFeedbackAddressHTML();
     }
 }
