@@ -1,9 +1,7 @@
 package org.owasp.webgoat.lessons;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -201,63 +199,6 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
     protected abstract boolean getDefaultHidden();
 
     /**
-     * Gets the fileMethod attribute of the Lesson class
-     *
-     * @param reader Description of the Parameter
-     * @param methodName Description of the Parameter
-     * @param numbers Description of the Parameter
-     * @return The fileMethod value
-     */
-    public static String getFileMethod(BufferedReader reader, String methodName, boolean numbers) {
-        int count = 0;
-        StringBuffer sb = new StringBuffer();
-        boolean echo = false;
-        boolean startCount = false;
-        int parenCount = 0;
-
-        try {
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                if ((line.indexOf(methodName) != -1)
-                        && ((line.indexOf("public") != -1) || (line.indexOf("protected") != -1) || (line
-                        .indexOf("private") != -1))) {
-                    echo = true;
-                    startCount = true;
-                }
-
-                if (echo && startCount) {
-                    if (numbers) {
-                        sb.append(pad(++count) + "    ");
-                    }
-
-                    sb.append(line + "\n");
-                }
-
-                if (echo && (line.indexOf("{") != -1)) {
-                    parenCount++;
-                }
-
-                if (echo && (line.indexOf("}") != -1)) {
-                    parenCount--;
-
-                    if (parenCount == 0) {
-                        startCount = false;
-                        echo = false;
-                    }
-                }
-            }
-
-            reader.close();
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
-        }
-
-        return (sb.toString());
-    }
-
-    /**
      * Reads text from a file into an ElementContainer. Each line in the file is
      * represented in the ElementContainer by a StringElement. Each
      * StringElement is appended with a new-line character.
@@ -301,15 +242,6 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
     }
 
     /**
-     * Will this screen be included in an enterprise edition.
-     *
-     * @return The ranking value
-     */
-    public boolean isEnterprise() {
-        return false;
-    }
-
-    /**
      * Gets the hintCount attribute of the Lesson object
      *
      * @param s The user's WebSession
@@ -321,13 +253,6 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
     }
 
     protected abstract List<String> getHints(WebSession s);
-
-    // @TODO we need to restrict access at the service layer
-    // rather than passing session object around
-    public List<String> getHintsPublic(WebSession s) {
-        List<String> hints = getHints(s);
-        return hints;
-    }
 
     /**
      * Fill in a minor hint that will help people who basically get it, but are
@@ -445,21 +370,6 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
         return id.intValue();
     }
 
-    public String getHtml_DELETE_ME(WebSession s) {
-        String html = null;
-
-        // FIXME: This doesn't work for the labs since they do not implement
-        // createContent().
-        String rawHtml = createContent(s).toString();
-        // System.out.println("Getting raw html content: " +
-        // rawHtml.substring(0, Math.min(rawHtml.length(), 100)));
-        html = convertMetachars(AbstractLesson.readFromFile(new BufferedReader(new StringReader(rawHtml)), true));
-        // System.out.println("Getting encoded html content: " +
-        // html.substring(0, Math.min(html.length(), 100)));
-
-        return html;
-    }
-
     public String getSource(WebSession s) {
         String source = null;
         String src = null;
@@ -497,24 +407,6 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
         source = html.toString();
 
         return source;
-    }
-
-    public String getRawSource(WebSession s) {
-        String src;
-
-        try {
-            logger.debug("Loading source file: " + getSourceFileName());
-            src = readFromFile(new BufferedReader(new FileReader(s.getWebResource(getSourceFileName()))), false);
-
-        } catch (FileNotFoundException e) {
-            s.setMessage("Could not find source file");
-            src = ("Could not find the source file or source file does not exist.<br/>"
-                    + "Send this message to: <a href=\"mailto:" + s.getWebgoatContext().getFeedbackAddress()
-                    + "?subject=Source " + getSourceFileName() + " not found. Lesson: "
-                    + s.getCurrentLesson().getLessonName() + "\">" + s.getWebgoatContext().getFeedbackAddress() + "</a>");
-        }
-
-        return src;
     }
 
     public String getSolution(WebSession s) {
@@ -634,14 +526,6 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
         return authorized;
     }
 
-    public int getUserId(WebSession s) throws ParameterNotFoundException {
-        return -1;
-    }
-
-    public String getUserName(WebSession s) throws ParameterNotFoundException {
-        return null;
-    }
-
     /**
      * Description of the Method
      *
@@ -685,62 +569,15 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
     }
 
     /**
-     * Simply reads a url into an Element for display. CAUTION: you might want
-     * to tinker with any non-https links (href)
-     *
-     * @param url Description of the Parameter
-     * @return Description of the Return Value
-     */
-    public static Element readFromURL(String url) {
-        ElementContainer ec = new ElementContainer();
-
-        try {
-            URL u = new URL(url);
-            HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(huc.getInputStream()));
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                ec.addElement(new StringElement(line));
-            }
-
-            reader.close();
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
-        }
-
-        return (ec);
-    }
-
-    /**
-     * Description of the Method
-     *
-     * @param reader Description of the Parameter
-     * @param numbers Description of the Parameter
-     * @param methodName Description of the Parameter
-     * @return Description of the Return Value
-     */
-    public static Element readMethodFromFile(BufferedReader reader, String methodName, boolean numbers) {
-        PRE pre = new PRE().addElement(getFileMethod(reader, methodName, numbers));
-
-        return (pre);
-    }
-
-    /**
      * Description of the Method
      *
      * @param s Description of the Parameter
      */
     public void handleRequest(WebSession s) {
         // call createContent first so messages will go somewhere
-        Form form = new Form(getFormAction(), Form.POST).setName("form").setEncType("");
+        Form form = new Form(getLink(), Form.POST).setName("form").setEncType("");
         form.addElement(createContent(s));
         setContent(form);
-    }
-
-    public String getFormAction() {
-        return getLink();
     }
 
     /**
