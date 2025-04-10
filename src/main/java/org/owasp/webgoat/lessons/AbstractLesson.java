@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -220,25 +222,21 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
      */
     public static String getFileText(BufferedReader reader, boolean numbers) {
         int count = 0;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
-        try {
+        try (reader) { // Use try-with-resources to ensure the reader is closed
             String line;
-
             while ((line = reader.readLine()) != null) {
                 if (numbers) {
-                    sb.append(pad(++count) + "  ");
+                    sb.append(pad(++count)).append("  ");
                 }
-                sb.append(line + System.getProperty("line.separator"));
+                sb.append(line).append(System.lineSeparator());
             }
-
-            reader.close();
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
+        } catch (IOException e) {
+            logger.error("Error reading file: {}", e.getMessage(), e); // Log with meaningful message
         }
 
-        return (sb.toString());
+        return sb.toString();
     }
 
     /**
@@ -278,46 +276,23 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
      *
      * @return The lessonPlan value
      */
-    protected String getLessonName() {
-        int index = this.getClass().getName().indexOf("lessons.");
-        return this.getClass().getName().substring(index + "lessons.".length());
-    }
-
-    /**
-     * Gets the title attribute of the HelloScreen object
-     *
-     * @return The title value
-     */
-    public abstract String getTitle();
-
-    /**
-     * Gets the content of lessonPlanURL
-     *
-     * @param s The user's WebSession
-     *
-     * @return The HTML content of the current lesson plan
-     */
     public String getLessonPlan(WebSession s) {
-        StringBuffer src = new StringBuffer();
+        StringBuilder src = new StringBuilder();
         String lang = s.getCurrrentLanguage();
 
         try {
-            // System.out.println("Loading lesson plan file: " +
-            // getLessonPlanFileName());
             String filename = getLessonPlanFileName(lang);
             if (filename == null) {
                 filename = getLessonPlanFileName(getDefaultLanguage());
-
             }
-
-            src.append(readFromFile(new BufferedReader(new FileReader(s.getWebResource(filename))), false));
-
-        } catch (Exception e) {
-            // s.setMessage( "Could not find lesson plan for " +
-            // getLessonName());
-            src = new StringBuffer("Could not find lesson plan for: " + getLessonName() + " and language " + lang);
-
+            try (BufferedReader reader = new BufferedReader(new FileReader(s.getWebResource(filename)))) {
+                src.append(readFromFile(reader, false));
+            }
+        } catch (IOException e) {
+            logger.error("Could not find lesson plan for lesson '{}' and language '{}': {}", getLessonName(), lang, e.getMessage(), e);
+            src.append("Could not find lesson plan for: ").append(getLessonName()).append(" and language ").append(lang);
         }
+
         return src.toString();
     }
 
@@ -505,24 +480,26 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
      * @return
      */
     public boolean isAuthorized(WebSession s, String role, String functionId) {
-        logger.info("Checking if " + role + " authorized for: " + functionId);
+        logger.info("Checking if role '{}' is authorized for function '{}'", role, functionId);
+        String query = "SELECT * FROM auth WHERE role = ? AND functionid = ?";
         boolean authorized = false;
-        try {
-            String query = "SELECT * FROM auth WHERE role = '" + role + "' and functionid = '" + functionId + "'";
-            try {
-                Statement answer_statement = WebSession.getConnection(s)
-                        .createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                ResultSet answer_results = answer_statement.executeQuery(query);
-                authorized = answer_results.first();
-                logger.info("authorized: "+ authorized);
-            } catch (SQLException sqle) {
-                s.setMessage("Error authorizing");
-                logger.error("Error authorizing", sqle);
+
+        try (Connection connection = WebSession.getConnection(s);
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, role);
+            statement.setString(2, functionId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                authorized = resultSet.next();
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            logger.error("SQL error while authorizing role '{}' for function '{}': {}", role, functionId, e.getMessage(), e);
             s.setMessage("Error authorizing");
-            logger.error("Error authorizing", e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while authorizing role '{}' for function '{}': {}", role, functionId, e.getMessage(), e);
+            s.setMessage("Error authorizing");
         }
+
+        logger.info("Authorization result for role '{}' and function '{}': {}", role, functionId, authorized);
         return authorized;
     }
 
