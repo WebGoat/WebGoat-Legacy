@@ -18,7 +18,6 @@ import org.apache.ecs.html.Table;
 import org.owasp.webgoat.session.WebSession;
 import sun.misc.BASE64Encoder;
 
-
 /***************************************************************************************************
  * 
  * 
@@ -45,6 +44,10 @@ import sun.misc.BASE64Encoder;
  * projects.
  * 
  * For details, please see http://webgoat.github.io
+ */
+
+/**
+ * HttpOnly lesson demonstrates the importance of HttpOnly cookies in web security.
  */
 public class HttpOnly extends LessonAdapter
 {
@@ -421,24 +424,12 @@ public class HttpOnly extends LessonAdapter
         }
     }
 
-    private String getJavaScript()
-    {
-        String script = """
-            function myAlert() {
-                alert(document.cookie);
-                document.form.read_result.value=document.cookie;
-                return true;
-            }
-            function modifyAlert() {
-                document.cookie='unique2u=HACKED;';
-                alert(document.cookie);
-                return true;
-            }
-        """;
-
-        return script;
-    }
-
+    /**
+     * Determines the browser type based on the user agent string.
+     *
+     * @param s The current WebSession containing the user agent.
+     * @return The name of the browser.
+     */
     private String getBrowserType(WebSession s)
     {
         int offset = -1;

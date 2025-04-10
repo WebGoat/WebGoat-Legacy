@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * *************************************************************************************************
- *
+ * AbstractLesson serves as a base class for all lessons in WebGoat.
+ * It provides common functionality such as handling lesson plans, solutions, and user roles.
  *
  * This file is part of WebGoat, an Open Web Application Security Project
  * utility. For details, please see http://www.owasp.org/
@@ -201,13 +201,12 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
     protected abstract boolean getDefaultHidden();
 
     /**
-     * Reads text from a file into an ElementContainer. Each line in the file is
-     * represented in the ElementContainer by a StringElement. Each
-     * StringElement is appended with a new-line character.
+     * Reads text from a file into a String.
+     * Each line in the file is represented in the String with a new-line character.
      *
-     * @param reader Description of the Parameter
-     * @param numbers Description of the Parameter
-     * @return Description of the Return Value
+     * @param reader BufferedReader to read the file.
+     * @param numbers Whether to include line numbers in the output.
+     * @return The content of the file as a String.
      */
     public static String readFromFile(BufferedReader reader, boolean numbers) {
         return (getFileText(reader, numbers));
@@ -504,13 +503,12 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
     }
 
     /**
-     * Description of the Method
+     * Generates a JavaScript function to open a new browser window.
      *
-     * @param windowName Description of the Parameter
-     * @return Description of the Return Value
+     * @param windowName The name of the window to be opened.
+     * @return A JavaScript function as a String.
      */
     public static String makeWindowScript(String windowName) {
-        // FIXME: make this string static
         StringBuffer script = new StringBuffer();
         script.append("<script language=\"JavaScript\">\n");
         script.append(" <!--\n");
@@ -546,12 +544,11 @@ public sealed class AbstractLesson extends Screen implements Comparable<Object> 
     }
 
     /**
-     * Description of the Method
+     * Handles the HTTP request for the lesson.
      *
-     * @param s Description of the Parameter
+     * @param s The current WebSession.
      */
     public void handleRequest(WebSession s) {
-        // call createContent first so messages will go somewhere
         Form form = new Form(getLink(), Form.POST).setName("form").setEncType("");
         form.addElement(createContent(s));
         setContent(form);

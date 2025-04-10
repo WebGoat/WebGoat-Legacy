@@ -1,4 +1,3 @@
-
 package org.owasp.webgoat.lessons;
 
 import java.sql.Connection;
@@ -22,7 +21,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.owasp.webgoat.session.DatabaseUtilities;
 import org.owasp.webgoat.session.WebSession;
-
 
 /***************************************************************************************************
  * 
@@ -53,32 +51,69 @@ import org.owasp.webgoat.session.WebSession;
  * 
  * @author Sherif Koussa <a href="http://www.softwaresecured.com">Software Secured</a>
  */
+
+/**
+ * BackDoors lesson demonstrates SQL injection vulnerabilities and how they can be exploited
+ * to create database backdoors or worms.
+ */
 public class BackDoors extends SequentialLessonAdapter
 {
 
+    /**
+     * Default ranking for the lesson.
+     */
     private final static Integer DEFAULT_RANKING = new Integer(80);
 
     private final static String USERNAME = "username";
 
+    /**
+     * SQL query to fetch user details from the database.
+     */
     private final static String SELECT_ST = "select userid, password, ssn, salary, email from employee where userid=";
 
     public final static A MAC_LOGO = new A().setHref("http://www.softwaresecured.com").addElement(new IMG("images/logos/softwaresecured.gif").setAlt("Software Secured").setBorder(0).setHspace(0).setVspace(0));
 
+    /**
+     * Creates the content for the lesson.
+     *
+     * @param s The current web session.
+     * @return The content element.
+     */
     protected Element createContent(WebSession s)
     {
         return super.createStagedContent(s);
     }
 
+    /**
+     * Executes stage 1 of the lesson.
+     *
+     * @param s The current web session.
+     * @return The content element for stage 1.
+     * @throws Exception If an error occurs during execution.
+     */
     protected Element doStage1(WebSession s) throws Exception
     {
         return concept1(s);
     }
 
+    /**
+     * Executes stage 2 of the lesson.
+     *
+     * @param s The current web session.
+     * @return The content element for stage 2.
+     * @throws Exception If an error occurs during execution.
+     */
     protected Element doStage2(WebSession s) throws Exception
     {
         return concept2(s);
     }
 
+    /**
+     * Adds database entries to the provided ElementContainer.
+     *
+     * @param ec The ElementContainer to which database entries will be added.
+     * @param rs The ResultSet containing database entries.
+     */
     private void addDBEntriesToEC(ElementContainer ec, ResultSet rs)
     {
         try
@@ -94,15 +129,8 @@ public class BackDoors extends SequentialLessonAdapter
                 tr.addElement(new TH("E-Mail"));
                 t.addElement(tr);
 
-                tr = new TR();
-                tr.addElement(new TD(rs.getString("userid")));
-                tr.addElement(new TD(rs.getString("password")));
-                tr.addElement(new TD(rs.getString("ssn")));
-                tr.addElement(new TD(rs.getString("salary")));
-                tr.addElement(new TD(rs.getString("email")));
-                t.addElement(tr);
-                while (rs.next())
-                {
+                // Add rows to the table for each database entry.
+                do {
                     tr = new TR();
                     tr.addElement(new TD(rs.getString("userid")));
                     tr.addElement(new TD(rs.getString("password")));
@@ -110,16 +138,22 @@ public class BackDoors extends SequentialLessonAdapter
                     tr.addElement(new TD(rs.getString("salary")));
                     tr.addElement(new TD(rs.getString("email")));
                     t.addElement(tr);
-                }
+                } while (rs.next());
                 ec.addElement(t);
             }
         } catch (SQLException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
+    /**
+     * Implements the concept for stage 1 of the lesson.
+     *
+     * @param s The current web session.
+     * @return The content element for stage 1.
+     * @throws Exception If an error occurs during execution.
+     */
     protected Element concept1(WebSession s) throws Exception
     {
         ElementContainer ec = new ElementContainer();
@@ -156,6 +190,13 @@ public class BackDoors extends SequentialLessonAdapter
         return ec;
     }
 
+    /**
+     * Implements the concept for stage 2 of the lesson.
+     *
+     * @param s The current web session.
+     * @return The content element for stage 2.
+     * @throws Exception If an error occurs during execution.
+     */
     protected Element concept2(WebSession s) throws Exception
     {
         ElementContainer ec = new ElementContainer();
@@ -184,6 +225,12 @@ public class BackDoors extends SequentialLessonAdapter
         return ec;
     }
 
+    /**
+     * Provides instructions for the lesson based on the current stage.
+     *
+     * @param s The current web session.
+     * @return The instructions for the lesson.
+     */
     public String getInstructions(WebSession s)
     {
         String instructions = "";
@@ -221,6 +268,12 @@ public class BackDoors extends SequentialLessonAdapter
         return instructions;
     }
 
+    /**
+     * Creates the username input field and related elements.
+     *
+     * @param s The current web session.
+     * @return The element container with the username input field.
+     */
     protected Element makeUsername(WebSession s)
     {
         ElementContainer ec = new ElementContainer();
@@ -260,11 +313,22 @@ public class BackDoors extends SequentialLessonAdapter
         return ec;
     }
 
+    /**
+     * Provides credits for the lesson.
+     *
+     * @return The credits element.
+     */
     public Element getCredits()
     {
         return super.getCustomCredits("Created by Sherif Koussa&nbsp;", MAC_LOGO);
     }
 
+    /**
+     * Provides hints for the lesson.
+     *
+     * @param s The current web session.
+     * @return A list of hints for the lesson.
+     */
     protected List<String> getHints(WebSession s)
     {
         List<String> hints = new ArrayList<String>();
@@ -276,16 +340,31 @@ public class BackDoors extends SequentialLessonAdapter
         return hints;
     }
 
+    /**
+     * Provides the default category for the lesson.
+     *
+     * @return The default category.
+     */
     protected Category getDefaultCategory()
     {
         return Category.INJECTION;
     }
 
+    /**
+     * Provides the default ranking for the lesson.
+     *
+     * @return The default ranking.
+     */
     protected Integer getDefaultRanking()
     {
         return DEFAULT_RANKING;
     }
 
+    /**
+     * Provides the title of the lesson.
+     *
+     * @return The title of the lesson.
+     */
     public String getTitle()
     {
         return ("Database Backdoors ");

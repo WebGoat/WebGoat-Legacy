@@ -37,6 +37,11 @@ import java.util.List;
  * @author Bruce Mayhew <a href="http://code.google.com/p/webgoat">WebGoat</a>
  * @created October 28, 2003
  */
+
+/**
+ * Category represents a lesson category in WebGoat.
+ * Each category has a name and a ranking to determine its order.
+ */
 public class Category implements Comparable {
 
     public final static Category INTRODUCTION = new Category("Introduction", new Integer(5));
@@ -115,6 +120,12 @@ public class Category implements Comparable {
         categories.add(c);
     }
 
+    /**
+     * Retrieves a category by its name.
+     *
+     * @param name The name of the category to retrieve.
+     * @return The Category object matching the name, or null if not found.
+     */
     public static synchronized Category getCategory(String name) {
         Iterator<Category> it = categories.iterator();
         while (it.hasNext()) {
