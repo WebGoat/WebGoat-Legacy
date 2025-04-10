@@ -1,4 +1,3 @@
-
 package org.owasp.webgoat.lessons;
 
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.owasp.webgoat.session.WebSession;
 import sun.misc.BASE64Encoder;
-
 
 /***************************************************************************************************
  * 
@@ -46,6 +44,10 @@ import sun.misc.BASE64Encoder;
  * projects.
  * 
  * For details, please see http://webgoat.github.io
+ */
+
+/**
+ * HttpOnly lesson demonstrates the importance of HttpOnly cookies in web security.
  */
 public class HttpOnly extends LessonAdapter
 {
@@ -422,26 +424,12 @@ public class HttpOnly extends LessonAdapter
         }
     }
 
-    private String getJavaScript()
-    {
-        StringBuffer buffer = new StringBuffer();
-
-        buffer.append("<script language=\"javascript\">\n");
-        buffer.append("function myAlert() {\n");
-        buffer.append("alert(document.cookie);\n");
-        buffer.append("document.form.read_result.value=document.cookie;\n");
-        buffer.append("return true;\n");
-        buffer.append("}\n");
-        buffer.append("function modifyAlert() {\n");
-        buffer.append("document.cookie='" + UNIQUE2U + "=HACKED;\';\n");
-        buffer.append("alert(document.cookie);\n");
-        buffer.append("return true;\n");
-        buffer.append("}\n");
-        buffer.append("</script>\n");
-
-        return buffer.toString();
-    }
-
+    /**
+     * Determines the browser type based on the user agent string.
+     *
+     * @param s The current WebSession containing the user agent.
+     * @return The name of the browser.
+     */
     private String getBrowserType(WebSession s)
     {
         int offset = -1;

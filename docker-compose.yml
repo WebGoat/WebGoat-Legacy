@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  webgoat:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    command: ["java", "-jar", "target/WebGoat-6.0-exec-war.jar"]

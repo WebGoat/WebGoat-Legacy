@@ -1,12 +1,12 @@
 package org.owasp.webgoat.lessons;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * *************************************************************************************************
- *
+ * AbstractLesson serves as a base class for all lessons in WebGoat.
+ * It provides common functionality such as handling lesson plans, solutions, and user roles.
  *
  * This file is part of WebGoat, an Open Web Application Security Project
  * utility. For details, please see http://www.owasp.org/
@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * @author Bruce Mayhew <a href="http://code.google.com/p/webgoat">WebGoat</a>
  * @created October 28, 2003
  */
-public abstract class AbstractLesson extends Screen implements Comparable<Object> {
+public sealed class AbstractLesson extends Screen implements Comparable<Object> permits BeginnerLesson, AdvancedLesson {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractLesson.class);
 
@@ -201,70 +201,12 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
     protected abstract boolean getDefaultHidden();
 
     /**
-     * Gets the fileMethod attribute of the Lesson class
+     * Reads text from a file into a String.
+     * Each line in the file is represented in the String with a new-line character.
      *
-     * @param reader Description of the Parameter
-     * @param methodName Description of the Parameter
-     * @param numbers Description of the Parameter
-     * @return The fileMethod value
-     */
-    public static String getFileMethod(BufferedReader reader, String methodName, boolean numbers) {
-        int count = 0;
-        StringBuffer sb = new StringBuffer();
-        boolean echo = false;
-        boolean startCount = false;
-        int parenCount = 0;
-
-        try {
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                if ((line.indexOf(methodName) != -1)
-                        && ((line.indexOf("public") != -1) || (line.indexOf("protected") != -1) || (line
-                        .indexOf("private") != -1))) {
-                    echo = true;
-                    startCount = true;
-                }
-
-                if (echo && startCount) {
-                    if (numbers) {
-                        sb.append(pad(++count) + "    ");
-                    }
-
-                    sb.append(line + "\n");
-                }
-
-                if (echo && (line.indexOf("{") != -1)) {
-                    parenCount++;
-                }
-
-                if (echo && (line.indexOf("}") != -1)) {
-                    parenCount--;
-
-                    if (parenCount == 0) {
-                        startCount = false;
-                        echo = false;
-                    }
-                }
-            }
-
-            reader.close();
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
-        }
-
-        return (sb.toString());
-    }
-
-    /**
-     * Reads text from a file into an ElementContainer. Each line in the file is
-     * represented in the ElementContainer by a StringElement. Each
-     * StringElement is appended with a new-line character.
-     *
-     * @param reader Description of the Parameter
-     * @param numbers Description of the Parameter
-     * @return Description of the Return Value
+     * @param reader BufferedReader to read the file.
+     * @param numbers Whether to include line numbers in the output.
+     * @return The content of the file as a String.
      */
     public static String readFromFile(BufferedReader reader, boolean numbers) {
         return (getFileText(reader, numbers));
@@ -279,34 +221,21 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
      */
     public static String getFileText(BufferedReader reader, boolean numbers) {
         int count = 0;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
-        try {
+        try (reader) { // Use try-with-resources to ensure the reader is closed
             String line;
-
             while ((line = reader.readLine()) != null) {
                 if (numbers) {
-                    sb.append(pad(++count) + "  ");
+                    sb.append(pad(++count)).append("  ");
                 }
-                sb.append(line + System.getProperty("line.separator"));
+                sb.append(line).append(System.lineSeparator());
             }
-
-            reader.close();
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
+        } catch (IOException e) {
+            logger.error("Error reading file: {}", e.getMessage(), e); // Log with meaningful message
         }
 
-        return (sb.toString());
-    }
-
-    /**
-     * Will this screen be included in an enterprise edition.
-     *
-     * @return The ranking value
-     */
-    public boolean isEnterprise() {
-        return false;
+        return sb.toString();
     }
 
     /**
@@ -321,13 +250,6 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
     }
 
     protected abstract List<String> getHints(WebSession s);
-
-    // @TODO we need to restrict access at the service layer
-    // rather than passing session object around
-    public List<String> getHintsPublic(WebSession s) {
-        List<String> hints = getHints(s);
-        return hints;
-    }
 
     /**
      * Fill in a minor hint that will help people who basically get it, but are
@@ -353,46 +275,23 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
      *
      * @return The lessonPlan value
      */
-    protected String getLessonName() {
-        int index = this.getClass().getName().indexOf("lessons.");
-        return this.getClass().getName().substring(index + "lessons.".length());
-    }
-
-    /**
-     * Gets the title attribute of the HelloScreen object
-     *
-     * @return The title value
-     */
-    public abstract String getTitle();
-
-    /**
-     * Gets the content of lessonPlanURL
-     *
-     * @param s The user's WebSession
-     *
-     * @return The HTML content of the current lesson plan
-     */
     public String getLessonPlan(WebSession s) {
-        StringBuffer src = new StringBuffer();
+        StringBuilder src = new StringBuilder();
         String lang = s.getCurrrentLanguage();
 
         try {
-            // System.out.println("Loading lesson plan file: " +
-            // getLessonPlanFileName());
             String filename = getLessonPlanFileName(lang);
             if (filename == null) {
                 filename = getLessonPlanFileName(getDefaultLanguage());
-
             }
-
-            src.append(readFromFile(new BufferedReader(new FileReader(s.getWebResource(filename))), false));
-
-        } catch (Exception e) {
-            // s.setMessage( "Could not find lesson plan for " +
-            // getLessonName());
-            src = new StringBuffer("Could not find lesson plan for: " + getLessonName() + " and language " + lang);
-
+            try (BufferedReader reader = new BufferedReader(new FileReader(s.getWebResource(filename)))) {
+                src.append(readFromFile(reader, false));
+            }
+        } catch (IOException e) {
+            logger.error("Could not find lesson plan for lesson '{}' and language '{}': {}", getLessonName(), lang, e.getMessage(), e);
+            src.append("Could not find lesson plan for: ").append(getLessonName()).append(" and language ").append(lang);
         }
+
         return src.toString();
     }
 
@@ -445,21 +344,6 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
         return id.intValue();
     }
 
-    public String getHtml_DELETE_ME(WebSession s) {
-        String html = null;
-
-        // FIXME: This doesn't work for the labs since they do not implement
-        // createContent().
-        String rawHtml = createContent(s).toString();
-        // System.out.println("Getting raw html content: " +
-        // rawHtml.substring(0, Math.min(rawHtml.length(), 100)));
-        html = convertMetachars(AbstractLesson.readFromFile(new BufferedReader(new StringReader(rawHtml)), true));
-        // System.out.println("Getting encoded html content: " +
-        // html.substring(0, Math.min(html.length(), 100)));
-
-        return html;
-    }
-
     public String getSource(WebSession s) {
         String source = null;
         String src = null;
@@ -497,24 +381,6 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
         source = html.toString();
 
         return source;
-    }
-
-    public String getRawSource(WebSession s) {
-        String src;
-
-        try {
-            logger.debug("Loading source file: " + getSourceFileName());
-            src = readFromFile(new BufferedReader(new FileReader(s.getWebResource(getSourceFileName()))), false);
-
-        } catch (FileNotFoundException e) {
-            s.setMessage("Could not find source file");
-            src = ("Could not find the source file or source file does not exist.<br/>"
-                    + "Send this message to: <a href=\"mailto:" + s.getWebgoatContext().getFeedbackAddress()
-                    + "?subject=Source " + getSourceFileName() + " not found. Lesson: "
-                    + s.getCurrentLesson().getLessonName() + "\">" + s.getWebgoatContext().getFeedbackAddress() + "</a>");
-        }
-
-        return src;
     }
 
     public String getSolution(WebSession s) {
@@ -613,43 +479,36 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
      * @return
      */
     public boolean isAuthorized(WebSession s, String role, String functionId) {
-        logger.info("Checking if " + role + " authorized for: " + functionId);
+        logger.info("Checking if role '{}' is authorized for function '{}'", role, functionId);
+        String query = "SELECT * FROM auth WHERE role = ? AND functionid = ?";
         boolean authorized = false;
-        try {
-            String query = "SELECT * FROM auth WHERE role = '" + role + "' and functionid = '" + functionId + "'";
-            try {
-                Statement answer_statement = WebSession.getConnection(s)
-                        .createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                ResultSet answer_results = answer_statement.executeQuery(query);
-                authorized = answer_results.first();
-                logger.info("authorized: "+ authorized);
-            } catch (SQLException sqle) {
-                s.setMessage("Error authorizing");
-                logger.error("Error authorizing", sqle);
+
+        try (Connection connection = WebSession.getConnection(s);
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, role);
+            statement.setString(2, functionId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                authorized = resultSet.next();
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            logger.error("SQL error while authorizing role '{}' for function '{}': {}", role, functionId, e.getMessage(), e);
             s.setMessage("Error authorizing");
-            logger.error("Error authorizing", e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while authorizing role '{}' for function '{}': {}", role, functionId, e.getMessage(), e);
+            s.setMessage("Error authorizing");
         }
+
+        logger.info("Authorization result for role '{}' and function '{}': {}", role, functionId, authorized);
         return authorized;
     }
 
-    public int getUserId(WebSession s) throws ParameterNotFoundException {
-        return -1;
-    }
-
-    public String getUserName(WebSession s) throws ParameterNotFoundException {
-        return null;
-    }
-
     /**
-     * Description of the Method
+     * Generates a JavaScript function to open a new browser window.
      *
-     * @param windowName Description of the Parameter
-     * @return Description of the Return Value
+     * @param windowName The name of the window to be opened.
+     * @return A JavaScript function as a String.
      */
     public static String makeWindowScript(String windowName) {
-        // FIXME: make this string static
         StringBuffer script = new StringBuffer();
         script.append("<script language=\"JavaScript\">\n");
         script.append(" <!--\n");
@@ -685,62 +544,14 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
     }
 
     /**
-     * Simply reads a url into an Element for display. CAUTION: you might want
-     * to tinker with any non-https links (href)
+     * Handles the HTTP request for the lesson.
      *
-     * @param url Description of the Parameter
-     * @return Description of the Return Value
-     */
-    public static Element readFromURL(String url) {
-        ElementContainer ec = new ElementContainer();
-
-        try {
-            URL u = new URL(url);
-            HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(huc.getInputStream()));
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                ec.addElement(new StringElement(line));
-            }
-
-            reader.close();
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
-        }
-
-        return (ec);
-    }
-
-    /**
-     * Description of the Method
-     *
-     * @param reader Description of the Parameter
-     * @param numbers Description of the Parameter
-     * @param methodName Description of the Parameter
-     * @return Description of the Return Value
-     */
-    public static Element readMethodFromFile(BufferedReader reader, String methodName, boolean numbers) {
-        PRE pre = new PRE().addElement(getFileMethod(reader, methodName, numbers));
-
-        return (pre);
-    }
-
-    /**
-     * Description of the Method
-     *
-     * @param s Description of the Parameter
+     * @param s The current WebSession.
      */
     public void handleRequest(WebSession s) {
-        // call createContent first so messages will go somewhere
-        Form form = new Form(getFormAction(), Form.POST).setName("form").setEncType("");
+        Form form = new Form(getLink(), Form.POST).setName("form").setEncType("");
         form.addElement(createContent(s));
         setContent(form);
-    }
-
-    public String getFormAction() {
-        return getLink();
     }
 
     /**
@@ -805,4 +616,12 @@ public abstract class AbstractLesson extends Screen implements Comparable<Object
     	}
     	return labelManager;
     }
+}
+
+public final class BeginnerLesson extends AbstractLesson {
+    // Implementation specific to BeginnerLesson
+}
+
+public final class AdvancedLesson extends AbstractLesson {
+    // Implementation specific to AdvancedLesson
 }

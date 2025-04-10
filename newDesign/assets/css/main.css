@@ -9,6 +9,10 @@ body {
   margin: 0px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  background-color: #fff;
 }
 a:link,
 a:visited {
@@ -45,6 +49,18 @@ img {
 }
 ::-moz-selection {
   background: #fff7dd;
+}
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  z-index: 100;
+}
+.skip-link:focus {
+  top: 0;
 }
 /* ==========================================================================
    Layout
@@ -713,6 +729,14 @@ fieldset[disabled] .btn-warning.active {
   /* Main Content */
   #main-content .h1 {
     font-size: 35px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  .main-content-wrapper {
+    margin-left: 0;
   }
 }
 @media only screen and (max-width: 660px) {

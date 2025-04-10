@@ -212,6 +212,9 @@ public class ZipBomb extends LessonAdapter {
 		return total;
 	}
 
-	
-	
+}
+
+// Replaced simple data class with a record
+public record ZipBomb(String fileName, long size) {
+    // Additional methods if needed
 }

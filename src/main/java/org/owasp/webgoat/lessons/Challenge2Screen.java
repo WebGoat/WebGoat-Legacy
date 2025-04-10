@@ -1,4 +1,3 @@
-
 package org.owasp.webgoat.lessons;
 
 import java.io.BufferedReader;
@@ -40,7 +39,6 @@ import org.owasp.webgoat.session.WebSession;
 import org.owasp.webgoat.util.Exec;
 import org.owasp.webgoat.util.ExecResults;
 
-
 /***************************************************************************************************
  * 
  * 
@@ -70,6 +68,11 @@ import org.owasp.webgoat.util.ExecResults;
  * 
  * @author Bruce Mayhew <a href="http://code.google.com/p/webgoat">WebGoat</a>
  * @created October 28, 2003
+ */
+
+/**
+ * Challenge2Screen lesson challenges users to break authentication, steal credit card data,
+ * and deface a website using various techniques.
  */
 public class Challenge2Screen extends SequentialLessonAdapter
 {
@@ -135,13 +138,11 @@ public class Challenge2Screen extends SequentialLessonAdapter
     }
 
     /**
-     * Determine the username and password
-     * 
-     * @param s
-     *            Description of the Parameter
-     * @return Description of the Return Value
-     * @exception Exception
-     *                Description of the Exception
+     * Handles the first stage of the challenge, where users must determine the username and password.
+     *
+     * @param s The current WebSession.
+     * @return The content for stage 1.
+     * @throws Exception If an error occurs during processing.
      */
     protected Element doStage1(WebSession s) throws Exception
     {

@@ -1,0 +1,65 @@
+plugins {
+    id 'java'
+    id 'war'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.h2database:h2:2.2.220'
+    implementation 'javax.activation:activation:1.2.0'
+    implementation 'axis:axis:1.4'
+    implementation 'axis:axis-saaj:1.4'
+    implementation 'axis:axis-jaxrpc:1.4'
+    implementation 'axis:axis-ant:1.4'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'commons-collections:commons-collections:3.2.2'
+    implementation 'commons-digester:commons-digester:2.1'
+    implementation 'commons-logging:commons-logging:1.2'
+    implementation 'org.slf4j:jcl-over-slf4j:2.0.9'
+    implementation 'commons-discovery:commons-discovery:0.5'
+    implementation 'javax.mail:mail:1.6.2'
+    implementation 'javax.mail:mailapi:1.6.2'
+    implementation 'hsqldb:hsqldb:2.7.1'
+    implementation 'wsdl4j:wsdl4j:1.6.3'
+    implementation 'java2html:j2h:1.5'
+    implementation 'ecs:ecs:1.4.2'
+    implementation 'jakarta.transaction:jakarta.transaction-api:2.0.0'
+    implementation 'net.sourceforge.jtds:jtds:1.3.1'
+    providedCompile 'org.apache.tomcat:tomcat-catalina:10.1.13'
+    providedCompile 'javax:javaee-api:8.0'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'commons-fileupload:commons-fileupload:1.5'
+    implementation 'commons-io:commons-io:2.13.0'
+    implementation 'javax.servlet:jstl:1.2'
+    implementation 'taglibs:standard:1.2.5'
+    implementation 'log4j:log4j:2.20.0'
+    testImplementation 'junit:junit:4.13.2'
+    implementation 'org.apache.tiles:tiles-core:3.0.8'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.slf4j:slf4j-log4j12:2.0.9'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'ISO-8859-1'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+war {
+    manifest {
+        attributes(
+            'Specification-Title': project.name,
+            'Specification-Version': project.version,
+            'Implementation-Version': 'local'
+        )
+    }
+}

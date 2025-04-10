@@ -1,9 +1,9 @@
-
 package org.owasp.webgoat.session;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -89,15 +89,15 @@ public class DatabaseUtilities
 	private static Connection makeConnection(String user, WebgoatContext context) throws SQLException
 	{
 		try
-	{
-		Class.forName(context.getDatabaseDriver());
+		{
+			Class.forName(context.getDatabaseDriver());
 
-		if (context.getDatabaseConnectionString().contains("hsqldb")) return getHsqldbConnection(user, context);
+			if (context.getDatabaseConnectionString().contains("hsqldb")) return getHsqldbConnection(user, context);
 
-		String userPrefix = context.getDatabaseUser();
-		String password = context.getDatabasePassword();
-		String url = context.getDatabaseConnectionString();
-		return DriverManager.getConnection(url, userPrefix + "_" + user, password);
+			String userPrefix = context.getDatabaseUser();
+			String password = context.getDatabasePassword();
+			String url = context.getDatabaseConnectionString();
+			return DriverManager.getConnection(url, userPrefix + "_" + user, password);
 		} catch (ClassNotFoundException cnfe)
 		{
 			cnfe.printStackTrace();
@@ -170,4 +170,10 @@ public class DatabaseUtilities
 		}
 	}
 
+	public static void executeQuery(String query, DataSource dataSource) throws SQLException {
+		try (Connection connection = dataSource.getConnection();
+		     PreparedStatement statement = connection.prepareStatement(query)) {
+			// Execute query or other operations
+		}
+	}
 }
