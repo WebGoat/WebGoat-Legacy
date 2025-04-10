@@ -1,6 +1,9 @@
 package org.owasp;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import java.util.*;
 
 @RestController
@@ -50,5 +53,21 @@ public class LessonController {
         } else {
             return "Lesson not found";
         }
+    }
+
+    // Export lesson progress
+    @GetMapping("/export")
+    public ResponseEntity<String> exportLessonProgress() {
+        StringBuilder csvBuilder = new StringBuilder();
+        csvBuilder.append("Lesson ID,Lesson Title\n");
+
+        for (Map.Entry<Integer, String> entry : lessons.entrySet()) {
+            csvBuilder.append(entry.getKey()).append(",").append(entry.getValue()).append("\n");
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=lesson_progress.csv");
+
+        return new ResponseEntity<>(csvBuilder.toString(), headers, HttpStatus.OK);
     }
 }
