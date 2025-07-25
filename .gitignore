@@ -24,4 +24,14 @@ src/main/main.iml
 *.LOCAL.*.jsp
 *.REMOTE.*.jsp
 *.iml
+target/
+*.class
+*.log
+.idea/
+.vscode/
+*.tmp
+*.swp
+.DS_Store
+bom.xml
+bom.json
 
