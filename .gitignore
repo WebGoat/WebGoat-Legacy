@@ -44,3 +44,20 @@ target/
 # CycloneDX SBOMs
 bom.xml
 bom.json
+
+# IQ CLI binary
+iq-cli.jar
+
+# IQ Server bundle and JAR
+iq-server-bundle.zip
+nexus-iq-server-1.193.0-01.jar
+
+# IQ Server runtime/work directory
+sonatype-work/
+
+# Local configuration not meant for version control
+config.yml
+
+# Windows/Linux demo scripts (optional — add only if local-only)
+demo.sh
+demo.bat
