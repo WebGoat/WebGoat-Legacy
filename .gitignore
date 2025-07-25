@@ -1,37 +1,46 @@
-/nb-configuration.xml
-/nbactions.xml
-/target/
-/.classpath
-/.project
-/.settings/.jsdtscope
-/.settings/org.eclipse.jdt.core.prefs
-/.settings/org.eclipse.m2e.core.prefs
-/.settings/org.eclipse.wst.common.component
-/.settings/org.eclipse.wst.common.project.facet.core.prefs.xml
-/.settings/org.eclipse.wst.common.project.facet.core.xml
-/.settings/org.eclipse.wst.jsdt.ui.superType.container
-/.settings/org.eclipse.wst.jsdt.ui.superType.name
-/.settings/org.eclipse.wst.validation.prefs
-/.externalToolBuilders/
-.project
-/target
+# Eclipse-specific
 .classpath
-.idea/
+.project
 .settings/
+.externalToolBuilders/
+nb-configuration.xml
+nbactions.xml
+.settings/.jsdtscope
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.m2e.core.prefs
+.settings/org.eclipse.wst.common.component
+.settings/org.eclipse.wst.common.project.facet.core.prefs.xml
+.settings/org.eclipse.wst.common.project.facet.core.xml
+.settings/org.eclipse.wst.jsdt.ui.superType.container
+.settings/org.eclipse.wst.jsdt.ui.superType.name
+.settings/org.eclipse.wst.validation.prefs
+
+# IntelliJ / JetBrains
+.idea/
+*.iml
 src/main/main.iml
+
+# Maven and build output
+target/
+*.class
+
+# Conflict markers from Git
 *.BACKUP.*.jsp
 *.BASE.*.jsp
 *.LOCAL.*.jsp
 *.REMOTE.*.jsp
-*.iml
-target/
-*.class
+
+# Logs and temp
 *.log
-.idea/
-.vscode/
 *.tmp
 *.swp
+
+# System / OS files
 .DS_Store
+
+# VSCode settings
+.vscode/
+
+# CycloneDX SBOMs
 bom.xml
 bom.json
-
